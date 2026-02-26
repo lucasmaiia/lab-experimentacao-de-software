@@ -1,0 +1,369 @@
+
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dashboard Lab01 - Avaliação das RQs</title>
+  <!-- Chart.js para gráficos premium -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Google Fonts para tipografia moderna -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container { max-width: 1300px; margin: 0 auto; }
+    h1, h2, h3 { color: #1e293b; margin-top: 0; }
+    .header { margin-bottom: 40px; text-align: center; }
+    .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px;}
+    .header p { color: #64748b; font-size: 16px; margin: 0; }
+    
+    .grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s;
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+    .card-title { font-size: 13px; font-weight: 600; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+    .stat-value { font-size: 32px; font-weight: 700; color: #0f172a; }
+    .stat-sub { font-size: 13px; color: #94a3b8; margin-top: 6px; display: flex; justify-content: space-between; }
+    
+    .charts-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); margin-top: 20px;}
+    canvas { max-width: 100%; }
+    
+    .table-container {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow-x: auto;
+      margin-top: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    
+    .search-wrapper { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+    input[type="text"] {
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 450px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #f1f5f9; padding: 14px 12px; text-align: left; font-size: 14px; }
+    th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    th:hover { background: #e2e8f0; }
+    .right { text-align: right; }
+    .sort-icon { font-size: 12px; margin-left: 6px; display: inline-block; width: 14px; color: #3b82f6; }
+    
+    .badge {
+      display: inline-block; padding: 4px 8px; border-radius: 4px;
+      font-size: 12px; font-weight: 600; background: #e0f2fe; color: #0284c7;
+    }
+    
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Dashboard Analítico de Repositórios GitHub</h1>
+    <p>Respostas diretas às Questões de Pesquisa baseadas em 100 repositórios.</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Idade Média</div>
+      <div class="stat-value" id="s_age">--</div>
+      <div class="stat-sub"><span id="s_age_sub"></span><span>Anos</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">PRs Aceitos (Mediana)*</div>
+      <div class="stat-value" id="s_prs">--</div>
+      <div class="stat-sub"><span id="s_prs_sub"></span><span>Contribuições</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Releases (Mediana)*</div>
+      <div class="stat-value" id="s_rels">--</div>
+      <div class="stat-sub"><span id="s_rels_sub"></span><span>Lançamentos</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Dias s/ Update</div>
+      <div class="stat-value" id="s_upd">--</div>
+      <div class="stat-sub"><span id="s_upd_sub"></span><span>Dias (Mediana)</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Issues Fechadas</div>
+      <div class="stat-value" id="s_iss">--</div>
+      <div class="stat-sub"><span id="s_iss_sub"></span><span>Razão Fechadas/Total</span></div>
+    </div>
+  </div>
+  <p style="font-size:12px; color:#94a3b8; margin-top:8px;">* Usamos a mediana para PRs e Releases para evitar que repositórios com números astronômicos (outliers) distorçam a realidade geral.</p>
+
+  <div class="charts-grid">
+    <div class="card">
+      <h3>Distribuição de Idades</h3>
+      <p style="font-size:13px; color:#64748b; margin-top:-6px; margin-bottom:12px;">Sistemas populares são antigos/maduros?</p>
+      <canvas id="ageChart" height="220"></canvas>
+    </div>
+    <div class="card">
+      <h3>Linguagens mais populares</h3>
+      <p style="font-size:13px; color:#64748b; margin-top:-6px; margin-bottom:12px;">Quais são as linguagens predominantes?</p>
+      <canvas id="langChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3>Influência da Linguagem na Qualidade e Frequência</h3>
+    <p style="font-size:14px; color:#475569; margin-top:-4px; margin-bottom:16px;">
+      Sistemas em linguagens mais populares recebem mais contribuição, lançam mais releases e são atualizados com mais frequência?<br>
+      <i>Comparativo das 5 linguagens mais populares (valores em mediana para reduzir impacto de outliers):</i>
+    </p>
+    <div style="overflow-x: auto;">
+      <table id="rq07_table">
+        <thead>
+          <tr>
+            <th>Linguagem (Top 5)</th>
+            <th class="right">Repositórios Analisados</th>
+            <th class="right">Mediana de PRs mergeados</th>
+            <th class="right">Mediana de Releases</th>
+            <th class="right">Mediana Dias s/ Update</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="search-wrapper">
+      <input id="q" type="text" placeholder="Buscar por repo (ex: react) ou linguagem (ex: python)..." />
+      <span style="font-size: 14px; color:#64748b; font-weight: 500;" id="filtered"></span>
+    </div>
+    <table id="t">
+      <thead>
+        <tr>
+          <th data-k="name_with_owner">Repo<span class="sort-icon"></span></th>
+          <th data-k="stars" class="right">Stars<span class="sort-icon"></span></th>
+          <th data-k="age_years" class="right">Idade<span class="sort-icon"></span></th>
+          <th data-k="days_since_update" class="right">Dias s/ update<span class="sort-icon"></span></th>
+          <th data-k="primary_language">Linguagem<span class="sort-icon"></span></th>
+          <th data-k="merged_pull_requests" class="right">PRs merge<span class="sort-icon"></span></th>
+          <th data-k="releases_total" class="right">Releases<span class="sort-icon"></span></th>
+          <th data-k="issues_closed_ratio" class="right">% issues fechadas<span class="sort-icon"></span></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+  <script>
+    const DATA = [{"name_with_owner": "codecrafters-io/build-your-own-x", "stars": 467461, "created_at": "2018-05-09T12:03:18Z", "age_days": "2844", "age_years": 7.786, "updated_at": "2026-02-21T00:29:15Z", "days_since_update": 0, "primary_language": "Markdown", "merged_pull_requests": 145, "releases_total": 0, "issues_open": 256, "issues_closed": 629, "issues_total": 885, "issues_closed_ratio": 0.710734}, {"name_with_owner": "sindresorhus/awesome", "stars": 438929, "created_at": "2014-07-11T13:42:37Z", "age_days": "4242", "age_years": 11.614, "updated_at": "2026-02-21T00:26:04Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 693, "releases_total": 0, "issues_open": 16, "issues_closed": 347, "issues_total": 363, "issues_closed_ratio": 0.955923}, {"name_with_owner": "freeCodeCamp/freeCodeCamp", "stars": 437341, "created_at": "2014-12-24T17:49:19Z", "age_days": "4076", "age_years": 11.159, "updated_at": "2026-02-21T00:22:11Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 27628, "releases_total": 0, "issues_open": 192, "issues_closed": 20900, "issues_total": 21092, "issues_closed_ratio": 0.990897}, {"name_with_owner": "public-apis/public-apis", "stars": 399306, "created_at": "2016-03-20T23:49:42Z", "age_days": "3624", "age_years": 9.922, "updated_at": "2026-02-21T00:28:59Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 1872, "releases_total": 0, "issues_open": 6, "issues_closed": 821, "issues_total": 827, "issues_closed_ratio": 0.992745}, {"name_with_owner": "EbookFoundation/free-programming-books", "stars": 382842, "created_at": "2013-10-11T06:50:37Z", "age_days": "4515", "age_years": 12.361, "updated_at": "2026-02-21T00:26:14Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 7326, "releases_total": 0, "issues_open": 36, "issues_closed": 1225, "issues_total": 1261, "issues_closed_ratio": 0.971451}, {"name_with_owner": "kamranahmedse/developer-roadmap", "stars": 349491, "created_at": "2017-03-15T13:45:52Z", "age_days": "3264", "age_years": 8.936, "updated_at": "2026-02-21T00:28:45Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 4039, "releases_total": 1, "issues_open": 24, "issues_closed": 3046, "issues_total": 3070, "issues_closed_ratio": 0.992182}, {"name_with_owner": "jwasham/coding-interview-university", "stars": 337214, "created_at": "2016-06-06T02:34:12Z", "age_days": "3546", "age_years": 9.708, "updated_at": "2026-02-21T00:26:25Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 415, "releases_total": 0, "issues_open": 71, "issues_closed": 454, "issues_total": 525, "issues_closed_ratio": 0.864762}, {"name_with_owner": "donnemartin/system-design-primer", "stars": 336000, "created_at": "2017-02-26T16:15:28Z", "age_days": "3281", "age_years": 8.983, "updated_at": "2026-02-21T00:15:14Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 203, "releases_total": 0, "issues_open": 247, "issues_closed": 109, "issues_total": 356, "issues_closed_ratio": 0.30618}, {"name_with_owner": "vinta/awesome-python", "stars": 283848, "created_at": "2014-06-27T21:00:06Z", "age_days": "4256", "age_years": 11.652, "updated_at": "2026-02-21T00:13:57Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 635, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "996icu/996.ICU", "stars": 275505, "created_at": "2019-03-26T07:31:14Z", "age_days": "2523", "age_years": 6.908, "updated_at": "2026-02-20T21:41:01Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 1072, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "awesome-selfhosted/awesome-selfhosted", "stars": 274312, "created_at": "2015-06-01T02:33:17Z", "age_days": "3917", "age_years": 10.724, "updated_at": "2026-02-21T00:13:37Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 2395, "releases_total": 1, "issues_open": 0, "issues_closed": 807, "issues_total": 807, "issues_closed_ratio": 1.0}, {"name_with_owner": "practical-tutorials/project-based-learning", "stars": 258790, "created_at": "2017-04-12T05:07:46Z", "age_days": "3236", "age_years": 8.86, "updated_at": "2026-02-21T00:23:25Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 182, "releases_total": 0, "issues_open": 147, "issues_closed": 82, "issues_total": 229, "issues_closed_ratio": 0.358079}, {"name_with_owner": "facebook/react", "stars": 243246, "created_at": "2013-05-24T16:15:54Z", "age_days": "4655", "age_years": 12.745, "updated_at": "2026-02-20T23:21:40Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 12736, "releases_total": 118, "issues_open": 811, "issues_closed": 13556, "issues_total": 14367, "issues_closed_ratio": 0.943551}, {"name_with_owner": "torvalds/linux", "stars": 218071, "created_at": "2011-09-04T22:48:12Z", "age_days": "5283", "age_years": 14.464, "updated_at": "2026-02-20T23:36:55Z", "days_since_update": 0, "primary_language": "C", "merged_pull_requests": 0, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "TheAlgorithms/Python", "stars": 217931, "created_at": "2016-07-16T09:44:01Z", "age_days": "3506", "age_years": 9.599, "updated_at": "2026-02-21T00:26:52Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 3046, "releases_total": 0, "issues_open": 159, "issues_closed": 1540, "issues_total": 1699, "issues_closed_ratio": 0.906416}, {"name_with_owner": "openclaw/openclaw", "stars": 214270, "created_at": "2025-11-24T10:16:47Z", "age_days": "88", "age_years": 0.241, "updated_at": "2026-02-21T00:31:43Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 1679, "releases_total": 48, "issues_open": 4350, "issues_closed": 6025, "issues_total": 10375, "issues_closed_ratio": 0.580723}, {"name_with_owner": "vuejs/vue", "stars": 209968, "created_at": "2013-07-29T03:24:51Z", "age_days": "4589", "age_years": 12.564, "updated_at": "2026-02-20T23:21:38Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 1136, "releases_total": 249, "issues_open": 359, "issues_closed": 9668, "issues_total": 10027, "issues_closed_ratio": 0.964197}, {"name_with_owner": "trimstray/the-book-of-secret-knowledge", "stars": 207083, "created_at": "2018-06-23T10:43:14Z", "age_days": "2799", "age_years": 7.663, "updated_at": "2026-02-21T00:28:38Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 122, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "ossu/computer-science", "stars": 201501, "created_at": "2014-05-04T00:18:39Z", "age_days": "4311", "age_years": 11.803, "updated_at": "2026-02-20T23:15:18Z", "days_since_update": 0, "primary_language": "HTML", "merged_pull_requests": 303, "releases_total": 0, "issues_open": 13, "issues_closed": 652, "issues_total": 665, "issues_closed_ratio": 0.980451}, {"name_with_owner": "trekhleb/javascript-algorithms", "stars": 195666, "created_at": "2018-03-24T07:47:04Z", "age_days": "2890", "age_years": 7.912, "updated_at": "2026-02-21T00:26:41Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 304, "releases_total": 0, "issues_open": 138, "issues_closed": 233, "issues_total": 371, "issues_closed_ratio": 0.628032}, {"name_with_owner": "tensorflow/tensorflow", "stars": 193872, "created_at": "2015-11-07T01:19:20Z", "age_days": "3758", "age_years": 10.289, "updated_at": "2026-02-20T22:55:44Z", "days_since_update": 0, "primary_language": "C++", "merged_pull_requests": 41885, "releases_total": 220, "issues_open": 881, "issues_closed": 40285, "issues_total": 41166, "issues_closed_ratio": 0.978599}, {"name_with_owner": "ohmyzsh/ohmyzsh", "stars": 184896, "created_at": "2009-08-28T18:15:37Z", "age_days": "6020", "age_years": 16.482, "updated_at": "2026-02-21T00:26:19Z", "days_since_update": 0, "primary_language": "Shell", "merged_pull_requests": 3504, "releases_total": 0, "issues_open": 141, "issues_closed": 4888, "issues_total": 5029, "issues_closed_ratio": 0.971963}, {"name_with_owner": "getify/You-Dont-Know-JS", "stars": 184445, "created_at": "2013-11-16T02:37:24Z", "age_days": "4479", "age_years": 12.263, "updated_at": "2026-02-20T22:46:22Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 370, "releases_total": 0, "issues_open": 0, "issues_closed": 949, "issues_total": 949, "issues_closed_ratio": 1.0}, {"name_with_owner": "CyC2018/CS-Notes", "stars": 183685, "created_at": "2018-02-13T14:56:24Z", "age_days": "2929", "age_years": 8.019, "updated_at": "2026-02-20T13:55:54Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 374, "releases_total": 0, "issues_open": 128, "issues_closed": 449, "issues_total": 577, "issues_closed_ratio": 0.778163}, {"name_with_owner": "microsoft/vscode", "stars": 181947, "created_at": "2015-09-03T20:23:38Z", "age_days": "3823", "age_years": 10.467, "updated_at": "2026-02-21T00:26:37Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 42567, "releases_total": 196, "issues_open": 12880, "issues_closed": 217326, "issues_total": 230206, "issues_closed_ratio": 0.94405}, {"name_with_owner": "Significant-Gravitas/AutoGPT", "stars": 181903, "created_at": "2023-03-16T09:21:07Z", "age_days": "1072", "age_years": 2.935, "updated_at": "2026-02-21T00:10:20Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 3913, "releases_total": 92, "issues_open": 231, "issues_closed": 3491, "issues_total": 3722, "issues_closed_ratio": 0.937937}, {"name_with_owner": "jackfrued/Python-100-Days", "stars": 178748, "created_at": "2018-03-01T16:05:52Z", "age_days": "2913", "age_years": 7.975, "updated_at": "2026-02-21T00:25:04Z", "days_since_update": 0, "primary_language": "Jupyter Notebook", "merged_pull_requests": 13, "releases_total": 0, "issues_open": 521, "issues_closed": 187, "issues_total": 708, "issues_closed_ratio": 0.264124}, {"name_with_owner": "n8n-io/n8n", "stars": 175544, "created_at": "2019-06-22T09:24:21Z", "age_days": "2435", "age_years": 6.667, "updated_at": "2026-02-21T00:21:23Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 13829, "releases_total": 532, "issues_open": 505, "issues_closed": 7554, "issues_total": 8059, "issues_closed_ratio": 0.937337}, {"name_with_owner": "flutter/flutter", "stars": 175269, "created_at": "2015-03-06T22:54:58Z", "age_days": "4004", "age_years": 10.962, "updated_at": "2026-02-21T00:03:43Z", "days_since_update": 0, "primary_language": "Dart", "merged_pull_requests": 46703, "releases_total": 7, "issues_open": 12174, "issues_closed": 100034, "issues_total": 112208, "issues_closed_ratio": 0.891505}, {"name_with_owner": "twbs/bootstrap", "stars": 173997, "created_at": "2011-07-29T21:19:00Z", "age_days": "5320", "age_years": 14.565, "updated_at": "2026-02-20T21:07:54Z", "days_since_update": 0, "primary_language": "MDX", "merged_pull_requests": 9107, "releases_total": 94, "issues_open": 397, "issues_closed": 22449, "issues_total": 22846, "issues_closed_ratio": 0.982623}, {"name_with_owner": "github/gitignore", "stars": 172626, "created_at": "2010-11-08T20:17:14Z", "age_days": "5583", "age_years": 15.285, "updated_at": "2026-02-21T00:26:29Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 1727, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "massgravel/Microsoft-Activation-Scripts", "stars": 166520, "created_at": "2020-01-12T23:03:34Z", "age_days": "2231", "age_years": 6.108, "updated_at": "2026-02-20T23:42:22Z", "days_since_update": 0, "primary_language": "Batchfile", "merged_pull_requests": 5, "releases_total": 29, "issues_open": 2, "issues_closed": 897, "issues_total": 899, "issues_closed_ratio": 0.997775}, {"name_with_owner": "avelino/awesome-go", "stars": 165620, "created_at": "2014-07-06T13:42:15Z", "age_days": "4247", "age_years": 11.628, "updated_at": "2026-02-21T00:22:22Z", "days_since_update": 0, "primary_language": "Go", "merged_pull_requests": 3569, "releases_total": 0, "issues_open": 12, "issues_closed": 711, "issues_total": 723, "issues_closed_ratio": 0.983402}, {"name_with_owner": "ollama/ollama", "stars": 163022, "created_at": "2023-06-26T19:39:32Z", "age_days": "970", "age_years": 2.656, "updated_at": "2026-02-21T00:02:42Z", "days_since_update": 0, "primary_language": "Go", "merged_pull_requests": 3029, "releases_total": 181, "issues_open": 1929, "issues_closed": 7397, "issues_total": 9326, "issues_closed_ratio": 0.793159}, {"name_with_owner": "AUTOMATIC1111/stable-diffusion-webui", "stars": 160712, "created_at": "2022-08-22T14:05:26Z", "age_days": "1278", "age_years": 3.499, "updated_at": "2026-02-21T00:27:00Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 1882, "releases_total": 27, "issues_open": 2396, "issues_closed": 5481, "issues_total": 7877, "issues_closed_ratio": 0.695823}, {"name_with_owner": "jlevy/the-art-of-command-line", "stars": 159976, "created_at": "2015-05-20T15:11:03Z", "age_days": "3929", "age_years": 10.757, "updated_at": "2026-02-21T00:26:37Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 317, "releases_total": 0, "issues_open": 122, "issues_closed": 136, "issues_total": 258, "issues_closed_ratio": 0.527132}, {"name_with_owner": "huggingface/transformers", "stars": 156758, "created_at": "2018-10-29T13:56:00Z", "age_days": "2671", "age_years": 7.313, "updated_at": "2026-02-21T00:20:51Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 18617, "releases_total": 243, "issues_open": 1080, "issues_closed": 17521, "issues_total": 18601, "issues_closed_ratio": 0.941939}, {"name_with_owner": "Snailclimb/JavaGuide", "stars": 153810, "created_at": "2018-05-07T13:27:00Z", "age_days": "2846", "age_years": 7.792, "updated_at": "2026-02-20T23:56:51Z", "days_since_update": 0, "primary_language": "Java", "merged_pull_requests": 1210, "releases_total": 0, "issues_open": 74, "issues_closed": 1056, "issues_total": 1130, "issues_closed_ratio": 0.934513}, {"name_with_owner": "DigitalPlatDev/FreeDomain", "stars": 148295, "created_at": "2024-05-30T13:23:00Z", "age_days": "631", "age_years": 1.728, "updated_at": "2026-02-21T00:32:09Z", "days_since_update": 0, "primary_language": "HTML", "merged_pull_requests": 1, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "airbnb/javascript", "stars": 148105, "created_at": "2012-11-01T23:13:50Z", "age_days": "4859", "age_years": 13.303, "updated_at": "2026-02-20T23:15:36Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 812, "releases_total": 0, "issues_open": 100, "issues_closed": 1299, "issues_total": 1399, "issues_closed_ratio": 0.92852}, {"name_with_owner": "yt-dlp/yt-dlp", "stars": 147795, "created_at": "2020-10-26T04:22:55Z", "age_days": "1943", "age_years": 5.32, "updated_at": "2026-02-21T00:21:36Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 3215, "releases_total": 129, "issues_open": 1801, "issues_closed": 9246, "issues_total": 11047, "issues_closed_ratio": 0.836969}, {"name_with_owner": "f/prompts.chat", "stars": 145861, "created_at": "2022-12-05T13:54:13Z", "age_days": "1173", "age_years": 3.211, "updated_at": "2026-02-21T00:32:11Z", "days_since_update": 0, "primary_language": "HTML", "merged_pull_requests": 199, "releases_total": 0, "issues_open": 3, "issues_closed": 124, "issues_total": 127, "issues_closed_ratio": 0.976378}, {"name_with_owner": "langflow-ai/langflow", "stars": 144933, "created_at": "2023-02-08T22:28:03Z", "age_days": "1108", "age_years": 3.034, "updated_at": "2026-02-21T00:10:03Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 5673, "releases_total": 280, "issues_open": 347, "issues_closed": 2799, "issues_total": 3146, "issues_closed_ratio": 0.889701}, {"name_with_owner": "521xueweihan/HelloGitHub", "stars": 143386, "created_at": "2016-05-04T06:24:11Z", "age_days": "3579", "age_years": 9.799, "updated_at": "2026-02-21T00:17:37Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 17, "releases_total": 62, "issues_open": 269, "issues_closed": 2681, "issues_total": 2950, "issues_closed_ratio": 0.908814}, {"name_with_owner": "ytdl-org/youtube-dl", "stars": 139684, "created_at": "2010-10-31T14:35:07Z", "age_days": "5591", "age_years": 15.307, "updated_at": "2026-02-21T00:22:44Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 1646, "releases_total": 341, "issues_open": 3629, "issues_closed": 23188, "issues_total": 26817, "issues_closed_ratio": 0.864675}, {"name_with_owner": "vercel/next.js", "stars": 137875, "created_at": "2016-10-05T23:32:51Z", "age_days": "3425", "age_years": 9.377, "updated_at": "2026-02-20T23:40:01Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 25925, "releases_total": 1000, "issues_open": 2044, "issues_closed": 22222, "issues_total": 24266, "issues_closed_ratio": 0.915767}, {"name_with_owner": "yangshun/tech-interview-handbook", "stars": 137722, "created_at": "2016-07-05T05:00:48Z", "age_days": "3517", "age_years": 9.629, "updated_at": "2026-02-20T22:30:05Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 486, "releases_total": 0, "issues_open": 43, "issues_closed": 76, "issues_total": 119, "issues_closed_ratio": 0.638655}, {"name_with_owner": "Genymobile/scrcpy", "stars": 135927, "created_at": "2017-11-21T18:00:27Z", "age_days": "3013", "age_years": 8.249, "updated_at": "2026-02-21T00:01:47Z", "days_since_update": 0, "primary_language": "C", "merged_pull_requests": 120, "releases_total": 50, "issues_open": 2660, "issues_closed": 3283, "issues_total": 5943, "issues_closed_ratio": 0.552415}, {"name_with_owner": "labuladong/fucking-algorithm", "stars": 132717, "created_at": "2020-02-19T09:01:23Z", "age_days": "2193", "age_years": 6.004, "updated_at": "2026-02-20T22:34:41Z", "days_since_update": 0, "primary_language": "Markdown", "merged_pull_requests": 243, "releases_total": 1, "issues_open": 0, "issues_closed": 960, "issues_total": 960, "issues_closed_ratio": 1.0}, {"name_with_owner": "golang/go", "stars": 132660, "created_at": "2014-08-19T04:33:40Z", "age_days": "4203", "age_years": 11.507, "updated_at": "2026-02-20T23:59:14Z", "days_since_update": 0, "primary_language": "Go", "merged_pull_requests": 1, "releases_total": 0, "issues_open": 9462, "issues_closed": 60720, "issues_total": 70182, "issues_closed_ratio": 0.865179}, {"name_with_owner": "microsoft/PowerToys", "stars": 129947, "created_at": "2019-05-01T17:44:02Z", "age_days": "2487", "age_years": 6.809, "updated_at": "2026-02-20T22:57:42Z", "days_since_update": 0, "primary_language": "C#", "merged_pull_requests": 6285, "releases_total": 127, "issues_open": 8079, "issues_closed": 29999, "issues_total": 38078, "issues_closed_ratio": 0.78783}, {"name_with_owner": "langgenius/dify", "stars": 129875, "created_at": "2023-04-12T07:40:24Z", "age_days": "1045", "age_years": 2.861, "updated_at": "2026-02-21T00:15:45Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 9495, "releases_total": 158, "issues_open": 398, "issues_closed": 16091, "issues_total": 16489, "issues_closed_ratio": 0.975863}, {"name_with_owner": "langchain-ai/langchain", "stars": 127061, "created_at": "2022-10-17T02:58:36Z", "age_days": "1222", "age_years": 3.346, "updated_at": "2026-02-21T00:25:50Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 15994, "releases_total": 1000, "issues_open": 229, "issues_closed": 8849, "issues_total": 9078, "issues_closed_ratio": 0.974774}, {"name_with_owner": "Chalarangelo/30-seconds-of-code", "stars": 126826, "created_at": "2017-11-29T17:35:03Z", "age_days": "3005", "age_years": 8.227, "updated_at": "2026-02-20T20:58:23Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 835, "releases_total": 12, "issues_open": 0, "issues_closed": 300, "issues_total": 300, "issues_closed_ratio": 1.0}, {"name_with_owner": "facebook/react-native", "stars": 125428, "created_at": "2015-01-09T18:10:16Z", "age_days": "4060", "age_years": 11.116, "updated_at": "2026-02-21T00:10:12Z", "days_since_update": 0, "primary_language": "C++", "merged_pull_requests": 953, "releases_total": 441, "issues_open": 742, "issues_closed": 26819, "issues_total": 27561, "issues_closed_ratio": 0.973078}, {"name_with_owner": "open-webui/open-webui", "stars": 124451, "created_at": "2023-10-06T22:08:27Z", "age_days": "868", "age_years": 2.376, "updated_at": "2026-02-21T00:28:14Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 3204, "releases_total": 147, "issues_open": 175, "issues_closed": 7489, "issues_total": 7664, "issues_closed_ratio": 0.977166}, {"name_with_owner": "krahets/hello-algo", "stars": 122363, "created_at": "2022-11-04T11:08:34Z", "age_days": "1204", "age_years": 3.296, "updated_at": "2026-02-20T22:30:12Z", "days_since_update": 0, "primary_language": "Java", "merged_pull_requests": 968, "releases_total": 10, "issues_open": 8, "issues_closed": 274, "issues_total": 282, "issues_closed_ratio": 0.971631}, {"name_with_owner": "kubernetes/kubernetes", "stars": 120684, "created_at": "2014-06-06T22:56:04Z", "age_days": "4277", "age_years": 11.71, "updated_at": "2026-02-21T00:24:22Z", "days_since_update": 0, "primary_language": "Go", "merged_pull_requests": 63861, "releases_total": 779, "issues_open": 1848, "issues_closed": 46716, "issues_total": 48564, "issues_closed_ratio": 0.961947}, {"name_with_owner": "electron/electron", "stars": 120170, "created_at": "2013-04-12T01:47:36Z", "age_days": "4697", "age_years": 12.86, "updated_at": "2026-02-20T21:38:35Z", "days_since_update": 0, "primary_language": "C++", "merged_pull_requests": 24388, "releases_total": 1000, "issues_open": 744, "issues_closed": 20709, "issues_total": 21453, "issues_closed_ratio": 0.96532}, {"name_with_owner": "ripienaar/free-for-dev", "stars": 118085, "created_at": "2015-03-18T21:06:26Z", "age_days": "3992", "age_years": 10.93, "updated_at": "2026-02-20T23:09:53Z", "days_since_update": 0, "primary_language": "HTML", "merged_pull_requests": 2880, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "excalidraw/excalidraw", "stars": 117194, "created_at": "2020-01-02T01:04:43Z", "age_days": "2241", "age_years": 6.136, "updated_at": "2026-02-21T00:17:33Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 3828, "releases_total": 14, "issues_open": 2084, "issues_closed": 2534, "issues_total": 4618, "issues_closed_ratio": 0.548722}, {"name_with_owner": "justjavac/free-programming-books-zh_CN", "stars": 116330, "created_at": "2013-11-04T01:59:19Z", "age_days": "4491", "age_years": 12.296, "updated_at": "2026-02-20T16:12:02Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 282, "releases_total": 3, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "nodejs/node", "stars": 115864, "created_at": "2014-11-26T19:57:11Z", "age_days": "4104", "age_years": 11.236, "updated_at": "2026-02-20T22:48:06Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 11799, "releases_total": 481, "issues_open": 1753, "issues_closed": 18292, "issues_total": 20045, "issues_closed_ratio": 0.912547}, {"name_with_owner": "x1xhlol/system-prompts-and-models-of-ai-tools", "stars": 115342, "created_at": "2025-03-05T16:38:29Z", "age_days": "352", "age_years": 0.964, "updated_at": "2026-02-21T00:30:09Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 45, "releases_total": 0, "issues_open": 77, "issues_closed": 102, "issues_total": 179, "issues_closed_ratio": 0.569832}, {"name_with_owner": "d3/d3", "stars": 112384, "created_at": "2010-09-27T17:22:42Z", "age_days": "5625", "age_years": 15.4, "updated_at": "2026-02-20T18:14:09Z", "days_since_update": 0, "primary_language": "Shell", "merged_pull_requests": 494, "releases_total": 194, "issues_open": 10, "issues_closed": 2229, "issues_total": 2239, "issues_closed_ratio": 0.995534}, {"name_with_owner": "iptv-org/iptv", "stars": 111813, "created_at": "2018-11-14T22:00:57Z", "age_days": "2655", "age_years": 7.269, "updated_at": "2026-02-21T00:30:22Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 6801, "releases_total": 0, "issues_open": 339, "issues_closed": 21020, "issues_total": 21359, "issues_closed_ratio": 0.984128}, {"name_with_owner": "mrdoob/three.js", "stars": 110999, "created_at": "2010-03-23T18:58:01Z", "age_days": "5813", "age_years": 15.915, "updated_at": "2026-02-21T00:12:36Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 15180, "releases_total": 175, "issues_open": 443, "issues_closed": 13043, "issues_total": 13486, "issues_closed_ratio": 0.967151}, {"name_with_owner": "rust-lang/rust", "stars": 110550, "created_at": "2010-06-16T20:39:03Z", "age_days": "5728", "age_years": 15.682, "updated_at": "2026-02-21T00:12:11Z", "days_since_update": 0, "primary_language": "Rust", "merged_pull_requests": 69274, "releases_total": 146, "issues_open": 11108, "issues_closed": 50346, "issues_total": 61454, "issues_closed_ratio": 0.819247}, {"name_with_owner": "axios/axios", "stars": 108609, "created_at": "2014-08-18T22:30:27Z", "age_days": "4204", "age_years": 11.51, "updated_at": "2026-02-20T18:26:31Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 1125, "releases_total": 108, "issues_open": 198, "issues_closed": 4753, "issues_total": 4951, "issues_closed_ratio": 0.960008}, {"name_with_owner": "microsoft/TypeScript", "stars": 107879, "created_at": "2014-06-17T15:28:39Z", "age_days": "4266", "age_years": 11.68, "updated_at": "2026-02-21T00:15:28Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 14848, "releases_total": 214, "issues_open": 4967, "issues_closed": 37977, "issues_total": 42944, "issues_closed_ratio": 0.884338}, {"name_with_owner": "rustdesk/rustdesk", "stars": 107826, "created_at": "2020-09-28T15:36:08Z", "age_days": "1971", "age_years": 5.396, "updated_at": "2026-02-20T23:20:55Z", "days_since_update": 0, "primary_language": "Rust", "merged_pull_requests": 3918, "releases_total": 35, "issues_open": 68, "issues_closed": 3918, "issues_total": 3986, "issues_closed_ratio": 0.98294}, {"name_with_owner": "anomalyco/opencode", "stars": 107690, "created_at": "2025-04-30T20:08:00Z", "age_days": "296", "age_years": 0.81, "updated_at": "2026-02-21T00:29:13Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 2454, "releases_total": 720, "issues_open": 4070, "issues_closed": 4719, "issues_total": 8789, "issues_closed_ratio": 0.536921}, {"name_with_owner": "Hack-with-Github/Awesome-Hacking", "stars": 107016, "created_at": "2016-03-30T15:47:10Z", "age_days": "3614", "age_years": 9.895, "updated_at": "2026-02-21T00:28:52Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 34, "releases_total": 0, "issues_open": 0, "issues_closed": 0, "issues_total": 0, "issues_closed_ratio": 0.0}, {"name_with_owner": "shadcn-ui/ui", "stars": 106990, "created_at": "2023-01-04T12:43:27Z", "age_days": "1143", "age_years": 3.129, "updated_at": "2026-02-21T00:21:18Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 993, "releases_total": 75, "issues_open": 987, "issues_closed": 2915, "issues_total": 3902, "issues_closed_ratio": 0.747053}, {"name_with_owner": "godotengine/godot", "stars": 106897, "created_at": "2014-01-04T16:05:36Z", "age_days": "4430", "age_years": 12.129, "updated_at": "2026-02-20T23:33:28Z", "days_since_update": 0, "primary_language": "C++", "merged_pull_requests": 41252, "releases_total": 66, "issues_open": 12936, "issues_closed": 48131, "issues_total": 61067, "issues_closed_ratio": 0.788167}, {"name_with_owner": "microsoft/generative-ai-for-beginners", "stars": 106671, "created_at": "2023-06-19T16:28:59Z", "age_days": "977", "age_years": 2.675, "updated_at": "2026-02-20T23:47:42Z", "days_since_update": 0, "primary_language": "Jupyter Notebook", "merged_pull_requests": 521, "releases_total": 0, "issues_open": 4, "issues_closed": 201, "issues_total": 205, "issues_closed_ratio": 0.980488}, {"name_with_owner": "denoland/deno", "stars": 106266, "created_at": "2018-05-15T01:34:26Z", "age_days": "2838", "age_years": 7.77, "updated_at": "2026-02-20T23:40:00Z", "days_since_update": 0, "primary_language": "Rust", "merged_pull_requests": 14154, "releases_total": 363, "issues_open": 2449, "issues_closed": 11462, "issues_total": 13911, "issues_closed_ratio": 0.823952}, {"name_with_owner": "GrowingGit/GitHub-Chinese-Top-Charts", "stars": 106221, "created_at": "2019-09-05T03:01:56Z", "age_days": "2360", "age_years": 6.461, "updated_at": "2026-02-20T16:48:28Z", "days_since_update": 0, "primary_language": "Java", "merged_pull_requests": 0, "releases_total": 0, "issues_open": 181, "issues_closed": 162, "issues_total": 343, "issues_closed_ratio": 0.472303}, {"name_with_owner": "goldbergyoni/nodebestpractices", "stars": 105109, "created_at": "2017-09-15T08:33:19Z", "age_days": "3080", "age_years": 8.433, "updated_at": "2026-02-20T21:54:04Z", "days_since_update": 0, "primary_language": "Dockerfile", "merged_pull_requests": 766, "releases_total": 0, "issues_open": 46, "issues_closed": 287, "issues_total": 333, "issues_closed_ratio": 0.861862}, {"name_with_owner": "fatedier/frp", "stars": 104620, "created_at": "2015-12-21T15:24:59Z", "age_days": "3714", "age_years": 10.168, "updated_at": "2026-02-20T22:54:36Z", "days_since_update": 0, "primary_language": "Go", "merged_pull_requests": 727, "releases_total": 109, "issues_open": 48, "issues_closed": 4002, "issues_total": 4050, "issues_closed_ratio": 0.988148}, {"name_with_owner": "facebook/create-react-app", "stars": 103923, "created_at": "2016-07-17T14:55:11Z", "age_days": "3505", "age_years": 9.596, "updated_at": "2026-02-20T21:29:37Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 1949, "releases_total": 83, "issues_open": 1846, "issues_closed": 6573, "issues_total": 8419, "issues_closed_ratio": 0.780734}, {"name_with_owner": "Comfy-Org/ComfyUI", "stars": 103727, "created_at": "2023-01-17T03:15:56Z", "age_days": "1130", "age_years": 3.094, "updated_at": "2026-02-21T00:31:14Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 2117, "releases_total": 119, "issues_open": 3404, "issues_closed": 4462, "issues_total": 7866, "issues_closed_ratio": 0.567251}, {"name_with_owner": "papers-we-love/papers-we-love", "stars": 103443, "created_at": "2013-12-15T14:31:41Z", "age_days": "4450", "age_years": 12.183, "updated_at": "2026-02-20T23:50:48Z", "days_since_update": 0, "primary_language": "Shell", "merged_pull_requests": 438, "releases_total": 0, "issues_open": 2, "issues_closed": 245, "issues_total": 247, "issues_closed_ratio": 0.991903}, {"name_with_owner": "tauri-apps/tauri", "stars": 103017, "created_at": "2019-07-13T09:09:37Z", "age_days": "2414", "age_years": 6.609, "updated_at": "2026-02-21T00:11:06Z", "days_since_update": 0, "primary_language": "Rust", "merged_pull_requests": 5385, "releases_total": 0, "issues_open": 1244, "issues_closed": 4901, "issues_total": 6145, "issues_closed_ratio": 0.797559}, {"name_with_owner": "microsoft/terminal", "stars": 101855, "created_at": "2017-08-11T18:38:22Z", "age_days": "3115", "age_years": 8.528, "updated_at": "2026-02-20T23:14:47Z", "days_since_update": 0, "primary_language": "C++", "merged_pull_requests": 4358, "releases_total": 146, "issues_open": 1650, "issues_closed": 12148, "issues_total": 13798, "issues_closed_ratio": 0.880417}, {"name_with_owner": "deepseek-ai/DeepSeek-V3", "stars": 101637, "created_at": "2024-12-26T09:52:40Z", "age_days": "421", "age_years": 1.153, "updated_at": "2026-02-20T19:48:37Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 25, "releases_total": 1, "issues_open": 40, "issues_closed": 665, "issues_total": 705, "issues_closed_ratio": 0.943262}, {"name_with_owner": "angular/angular", "stars": 99980, "created_at": "2014-09-18T16:12:01Z", "age_days": "4173", "age_years": 11.425, "updated_at": "2026-02-21T00:22:50Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 5509, "releases_total": 601, "issues_open": 994, "issues_closed": 29338, "issues_total": 30332, "issues_closed_ratio": 0.967229}, {"name_with_owner": "jaywcjlove/awesome-mac", "stars": 99030, "created_at": "2016-07-17T15:33:47Z", "age_days": "3505", "age_years": 9.596, "updated_at": "2026-02-21T00:17:08Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 1066, "releases_total": 13, "issues_open": 131, "issues_closed": 377, "issues_total": 508, "issues_closed_ratio": 0.742126}, {"name_with_owner": "Anduin2017/HowToCook", "stars": 98052, "created_at": "2020-02-29T10:43:49Z", "age_days": "2183", "age_years": 5.977, "updated_at": "2026-02-20T23:18:03Z", "days_since_update": 0, "primary_language": "Dockerfile", "merged_pull_requests": 612, "releases_total": 4, "issues_open": 460, "issues_closed": 364, "issues_total": 824, "issues_closed_ratio": 0.441748}, {"name_with_owner": "supabase/supabase", "stars": 97939, "created_at": "2019-10-12T05:56:49Z", "age_days": "2323", "age_years": 6.36, "updated_at": "2026-02-20T23:29:59Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 15384, "releases_total": 25, "issues_open": 264, "issues_closed": 4931, "issues_total": 5195, "issues_closed_ratio": 0.949182}, {"name_with_owner": "mui/material-ui", "stars": 97933, "created_at": "2014-08-18T19:11:54Z", "age_days": "4204", "age_years": 11.51, "updated_at": "2026-02-20T23:24:52Z", "days_since_update": 0, "primary_language": "JavaScript", "merged_pull_requests": 21417, "releases_total": 555, "issues_open": 1601, "issues_closed": 18734, "issues_total": 20335, "issues_closed_ratio": 0.921269}, {"name_with_owner": "mtdvio/every-programmer-should-know", "stars": 97844, "created_at": "2017-08-24T13:18:26Z", "age_days": "3102", "age_years": 8.493, "updated_at": "2026-02-20T20:13:37Z", "days_since_update": 0, "primary_language": "", "merged_pull_requests": 110, "releases_total": 0, "issues_open": 12, "issues_closed": 31, "issues_total": 43, "issues_closed_ratio": 0.72093}, {"name_with_owner": "clash-verge-rev/clash-verge-rev", "stars": 97826, "created_at": "2023-11-21T18:24:03Z", "age_days": "822", "age_years": 2.251, "updated_at": "2026-02-21T00:10:47Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 728, "releases_total": 62, "issues_open": 141, "issues_closed": 4802, "issues_total": 4943, "issues_closed_ratio": 0.971475}, {"name_with_owner": "ant-design/ant-design", "stars": 97627, "created_at": "2015-04-24T15:37:24Z", "age_days": "3955", "age_years": 10.828, "updated_at": "2026-02-20T21:50:32Z", "days_since_update": 0, "primary_language": "TypeScript", "merged_pull_requests": 16975, "releases_total": 739, "issues_open": 1298, "issues_closed": 31067, "issues_total": 32365, "issues_closed_ratio": 0.959895}, {"name_with_owner": "pytorch/pytorch", "stars": 97625, "created_at": "2016-08-13T05:26:41Z", "age_days": "3478", "age_years": 9.522, "updated_at": "2026-02-21T00:17:21Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 6414, "releases_total": 64, "issues_open": 16052, "issues_closed": 40835, "issues_total": 56887, "issues_closed_ratio": 0.717827}, {"name_with_owner": "2dust/v2rayN", "stars": 97085, "created_at": "2019-07-30T03:47:24Z", "age_days": "2397", "age_years": 6.563, "updated_at": "2026-02-21T00:25:20Z", "days_since_update": 0, "primary_language": "C#", "merged_pull_requests": 372, "releases_total": 297, "issues_open": 11, "issues_closed": 6556, "issues_total": 6567, "issues_closed_ratio": 0.998325}, {"name_with_owner": "neovim/neovim", "stars": 96631, "created_at": "2014-01-31T13:39:22Z", "age_days": "4403", "age_years": 12.055, "updated_at": "2026-02-20T23:42:00Z", "days_since_update": 0, "primary_language": "Vim Script", "merged_pull_requests": 17624, "releases_total": 48, "issues_open": 1657, "issues_closed": 12059, "issues_total": 13716, "issues_closed_ratio": 0.879192}, {"name_with_owner": "Shubhamsaboo/awesome-llm-apps", "stars": 96295, "created_at": "2024-04-29T05:30:25Z", "age_days": "662", "age_years": 1.812, "updated_at": "2026-02-20T23:12:29Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 166, "releases_total": 0, "issues_open": 3, "issues_closed": 117, "issues_total": 120, "issues_closed_ratio": 0.975}, {"name_with_owner": "nvbn/thefuck", "stars": 95515, "created_at": "2015-04-08T15:08:04Z", "age_days": "3971", "age_years": 10.872, "updated_at": "2026-02-20T22:01:31Z", "days_since_update": 0, "primary_language": "Python", "merged_pull_requests": 481, "releases_total": 17, "issues_open": 296, "issues_closed": 476, "issues_total": 772, "issues_closed_ratio": 0.61658}, {"name_with_owner": "ggml-org/llama.cpp", "stars": 95476, "created_at": "2023-03-10T18:58:00Z", "age_days": "1078", "age_years": 2.951, "updated_at": "2026-02-21T00:15:31Z", "days_since_update": 0, "primary_language": "C++", "merged_pull_requests": 7385, "releases_total": 1000, "issues_open": 408, "issues_closed": 6571, "issues_total": 6979, "issues_closed_ratio": 0.941539}];
+    const STATS = {"age_years": {"count": 100, "mean": 8.58, "median": 9.18, "min": 0.24, "max": 16.48}, "merged_pull_requests": {"count": 100, "mean": 7227.63, "median": 1703.0, "min": 0, "max": 69274}, "releases_total": {"count": 100, "mean": 140.52, "median": 15.5, "min": 0, "max": 1000}, "days_since_update": {"count": 100, "mean": 0, "median": 0.0, "min": 0, "max": 0}, "issues_closed_ratio": {"count": 100, "mean": 0.77, "median": 0.91, "min": 0.0, "max": 1.0}, "top_languages": [["Python", 19], ["TypeScript", 17], ["N/A", 14], ["JavaScript", 11], ["C++", 6], ["Go", 5], ["HTML", 4], ["Rust", 4], ["Shell", 3], ["Java", 3]], "rq07": {"Python": {"count": 19, "median_prs": 2117, "median_releases": 62, "median_days_update": 0}, "TypeScript": {"count": 17, "median_prs": 5509, "median_releases": 75, "median_days_update": 0}, "N/A": {"count": 14, "median_prs": 343.5, "median_releases": 0.0, "median_days_update": 0.0}, "JavaScript": {"count": 11, "median_prs": 1949, "median_releases": 108, "median_days_update": 0}, "C++": {"count": 6, "median_prs": 15886.5, "median_releases": 330.5, "median_days_update": 0.0}}};
+
+    // Utilitários de Formatação
+    function fmt(n) { return typeof n === 'number' ? n.toLocaleString('pt-BR') : n; }
+    function fmtPct(x) { return typeof x === 'number' ? (x*100).toFixed(1)+'%' : ''; }
+    
+    // Preenchendo os Cards Superiores
+    document.getElementById("s_age").innerText = STATS.age_years.median.toFixed(1);
+    document.getElementById("s_age_sub").innerText = "Média: " + STATS.age_years.mean.toFixed(1);
+    
+    document.getElementById("s_prs").innerText = fmt(STATS.merged_pull_requests.median);
+    document.getElementById("s_prs_sub").innerText = "Média: " + fmt(STATS.merged_pull_requests.mean);
+    
+    document.getElementById("s_rels").innerText = fmt(STATS.releases_total.median);
+    document.getElementById("s_rels_sub").innerText = "Média: " + fmt(STATS.releases_total.mean);
+
+    document.getElementById("s_upd").innerText = STATS.days_since_update.median;
+    document.getElementById("s_upd_sub").innerText = "Média: " + STATS.days_since_update.mean;
+
+    document.getElementById("s_iss").innerText = fmtPct(STATS.issues_closed_ratio.median);
+    document.getElementById("s_iss_sub").innerText = "Média: " + fmtPct(STATS.issues_closed_ratio.mean);
+
+    // Preenchendo a Tabela RQ07
+    const tbodyRQ07 = document.querySelector("#rq07_table tbody");
+    Object.entries(STATS.rq07).forEach(([lang, vals]) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><span class="badge">${lang}</span></td>
+        <td class="right">${fmt(vals.count)}</td>
+        <td class="right">${fmt(vals.median_prs)}</td>
+        <td class="right">${fmt(vals.median_releases)}</td>
+        <td class="right">${fmt(vals.median_days_update)}</td>
+      `;
+      tbodyRQ07.appendChild(tr);
+    });
+
+    // -------------------------------------------------------------
+    // Gráfico Chart.js: Histograma de Idades (RQ01)
+    // -------------------------------------------------------------
+    const ages = DATA.map(d => d.age_years).filter(x => x !== null);
+    const bins = 8;
+    const minAge = Math.floor(Math.min(...ages));
+    const maxAge = Math.ceil(Math.max(...ages));
+    const binSize = (maxAge - minAge) / bins;
+    const ageCounts = Array(bins).fill(0);
+    const ageLabels = [];
+    
+    for(let i=0; i<bins; i++) {
+        let bMin = minAge + i * binSize;
+        let bMax = bMin + binSize;
+        ageLabels.push(`${bMin.toFixed(0)} - ${bMax.toFixed(0)} Anos`);
+        ages.forEach(a => {
+            if(a >= bMin && (i === bins - 1 ? a <= bMax : a < bMax)) {
+                ageCounts[i]++;
+            }
+        });
+    }
+
+    new Chart(document.getElementById('ageChart'), {
+      type: 'bar',
+      data: {
+        labels: ageLabels,
+        datasets: [{
+          label: 'Qtd. de Repositórios',
+          data: ageCounts,
+          backgroundColor: 'rgba(59, 130, 246, 0.8)',
+          borderColor: 'rgba(59, 130, 246, 1)',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { title: { display: true, text: 'Intervalo de Idade'}, grid: {display: false} },
+          y: { title: { display: true, text: 'Nº de Repositórios'}, beginAtZero: true }
+        }
+      }
+    });
+
+    // -------------------------------------------------------------
+    // Gráfico Chart.js: Linguagens (RQ05)
+    // -------------------------------------------------------------
+    new Chart(document.getElementById('langChart'), {
+      type: 'bar',
+      data: {
+        labels: STATS.top_languages.map(x => x[0]),
+        datasets: [{
+          label: 'Qtd de Repositórios',
+          data: STATS.top_languages.map(x => x[1]),
+          backgroundColor: 'rgba(16, 185, 129, 0.8)',
+          borderColor: 'rgba(16, 185, 129, 1)',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { title: { display: true, text: 'Nº de Repositórios'}, beginAtZero: true },
+          y: { title: { display: false}, grid: {display: false} }
+        }
+      }
+    });
+
+    // -------------------------------------------------------------
+    // Tabela Principal Interativa
+    // -------------------------------------------------------------
+    let sortKey = "stars";
+    let sortAsc = false;
+    let filtered = DATA.slice();
+    
+    function compare(a,b,k) {
+      const va = a[k]; const vb = b[k];
+      if (va === vb) return 0;
+      if (va === null || va === undefined) return 1;
+      if (vb === null || vb === undefined) return -1;
+      if (typeof va === "number" && typeof vb === "number") return va - vb;
+      return String(va).localeCompare(String(vb));
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector("#t tbody");
+      tbody.innerHTML = "";
+      
+      const arr = filtered.slice().sort((a,b) => {
+        const c = compare(a,b,sortKey);
+        return sortAsc ? c : -c;
+      });
+
+      arr.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${r.name_with_owner || ""}</strong></td>
+          <td class="right">${fmt(r.stars)}</td>
+          <td class="right">${r.age_years ? r.age_years.toFixed(1) : ""}</td>
+          <td class="right">${fmt(r.days_since_update)}</td>
+          <td><span class="badge" style="background:#f1f5f9; color:#475569;">${r.primary_language || "-"}</span></td>
+          <td class="right">${fmt(r.merged_pull_requests)}</td>
+          <td class="right">${fmt(r.releases_total)}</td>
+          <td class="right">${fmtPct(r.issues_closed_ratio)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+      
+      document.getElementById("filtered").innerText = `Mostrando ${arr.length} de ${DATA.length}`;
+
+      // Atualiza os ícones de setas da coluna
+      document.querySelectorAll("th[data-k]").forEach(th => {
+        const icon = th.querySelector('.sort-icon');
+        icon.innerText = '';
+        if (th.getAttribute('data-k') === sortKey) {
+          icon.innerText = sortAsc ? ' ▲' : ' ▼';
+        }
+      });
+    }
+
+    document.querySelectorAll("th[data-k]").forEach(th => {
+      th.addEventListener("click", () => {
+        const k = th.getAttribute("data-k");
+        if (k === sortKey) sortAsc = !sortAsc;
+        else { sortKey = k; sortAsc = false; }
+        renderTable();
+      });
+    });
+
+    document.getElementById("q").addEventListener("input", (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (!q) { filtered = DATA.slice(); }
+      else {
+        filtered = DATA.filter(r => 
+          (r.name_with_owner || "").toLowerCase().includes(q) || 
+          (r.primary_language || "").toLowerCase().includes(q)
+        );
+      }
+      renderTable();
+    });
+
+    renderTable(); // Inicializa
+  </script>
+</body>
+</html>
