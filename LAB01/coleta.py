@@ -29,7 +29,7 @@ query($pageSize: Int!, $cursor: String) {
           nameWithOwner
           stargazerCount
           createdAt
-          updatedAt
+          pushedAt
           primaryLanguage { name }
 
           pullRequests(states: MERGED) { totalCount }
@@ -98,12 +98,13 @@ def main():
             stars = repo["stargazerCount"]
 
             created_at = iso_to_dt(repo["createdAt"])
-            updated_at = iso_to_dt(repo["updatedAt"])
+            raw_pushed = repo.get("pushedAt") or repo["createdAt"]
+            pushed_at = iso_to_dt(raw_pushed)
 
-            age_days = (now - created_at).days
+            age_days = max(0, (now - created_at).days)
             age_years = age_days / 365.25
 
-            days_since_update = (now - updated_at).days
+            days_since_update = max(0, (now - pushed_at).days)
 
             primary_lang = (repo.get("primaryLanguage") or {}).get("name")
 
@@ -122,7 +123,7 @@ def main():
                 "age_days": age_days,
                 "age_years": round(age_years, 3),
 
-                "updated_at": repo["updatedAt"],
+                "updated_at": raw_pushed,
                 "days_since_update": days_since_update,
                 "primary_language": primary_lang,
                 "merged_pull_requests": merged_prs,
