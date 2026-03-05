@@ -13,7 +13,7 @@ if not GITHUB_TOKEN:
     raise RuntimeError("definir variavel env GITHUB_TOKEN")
 
 # primeiro 100, depois 1000
-TARGET_REPOS = 100  
+TARGET_REPOS = 1000  
 PAGE_SIZE = 10     # paginação por busca
 OUTPUT_CSV = "coleta_repos.csv"
 
