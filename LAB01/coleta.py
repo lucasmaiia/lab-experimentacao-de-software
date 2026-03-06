@@ -21,26 +21,31 @@ GRAPHQL_URL = "https://api.github.com/graphql"
 
 QUERY = """
 query($pageSize: Int!, $cursor: String) {
-  search(query: "stars:>0 sort:stars-desc", type: REPOSITORY, first: $pageSize, after: $cursor) {
-    pageInfo { hasNextPage endCursor }
-    edges {
-      node {
-        ... on Repository {
-          nameWithOwner
-          stargazerCount
-          createdAt
-          pushedAt
-          primaryLanguage { name }
+    search(query: "stars:>0 sort:stars-desc", type: REPOSITORY, first: $pageSize, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
+        edges {
+            node {
+                ... on Repository {
+                    nameWithOwner
+                    stargazerCount
+                    createdAt
+                    pushedAt
+                    primaryLanguage { name }
+                    isFork
+                    isArchived
+                    licenseInfo { spdxId }
+                    diskUsage
+                    languages(first: 10) { totalSize nodes { name } }
 
-          pullRequests(states: MERGED) { totalCount }
-          releases { totalCount }
+                    pullRequests(states: MERGED) { totalCount }
+                    releases { totalCount }
 
-          issuesOpen: issues(states: OPEN) { totalCount }
-          issuesClosed: issues(states: CLOSED) { totalCount }
+                    issuesOpen: issues(states: OPEN) { totalCount }
+                    issuesClosed: issues(states: CLOSED) { totalCount }
+                }
+            }
         }
-      }
     }
-  }
 }
 """
 
@@ -76,6 +81,12 @@ def main():
         os.remove(OUTPUT_CSV)
 
     now = datetime.now(timezone.utc)
+    # tempo de início para medir duração total e por página
+    start_time = time.time()
+    # informar objetivo da coleta ao usuário
+    estimated_pages = (TARGET_REPOS + PAGE_SIZE - 1) // PAGE_SIZE
+    print(f"Iniciando coleta: objetivo = {TARGET_REPOS} repositórios; tamanho de página = {PAGE_SIZE}; estimadas {estimated_pages} páginas.")
+    print(f"Arquivo de saída: {OUTPUT_CSV}")
 
     rows = []
     cursor = None
@@ -84,7 +95,10 @@ def main():
     while total < TARGET_REPOS:
         variables = {"pageSize": PAGE_SIZE, "cursor": cursor}
         data = github_graphql(QUERY, variables)
+        # imprimir progresso e tempo decorrido desde o início
+        elapsed = time.time() - start_time
         print(f"Coletando página... (Total atual: {total})")
+        print(f"Tempo decorrido: {elapsed:.1f}s")
 
         search = data["search"]
         edges = search["edges"]
@@ -94,9 +108,11 @@ def main():
             if not repo:
                 continue
 
+            # Campos básicos
             name = repo["nameWithOwner"]
             stars = repo["stargazerCount"]
 
+            # Datas
             created_at = iso_to_dt(repo["createdAt"])
             raw_pushed = repo.get("pushedAt") or repo["createdAt"]
             pushed_at = iso_to_dt(raw_pushed)
@@ -106,6 +122,13 @@ def main():
 
             days_since_update = max(0, (now - pushed_at).days)
 
+            # Meta dados adicionais para filtragem
+            is_fork = repo.get("isFork")
+            is_archived = repo.get("isArchived")
+            license_spdx = (repo.get("licenseInfo") or {}).get("spdxId")
+            disk_usage = repo.get("diskUsage")  # geralmente em KB
+            languages_conn = repo.get("languages") or {}
+            lang_nodes = [n.get("name") for n in (languages_conn.get("nodes") or [])]
             primary_lang = (repo.get("primaryLanguage") or {}).get("name")
 
             merged_prs = repo["pullRequests"]["totalCount"]
@@ -116,6 +139,41 @@ def main():
             issues_total = issues_open + issues_closed
             issues_closed_ratio = safe_div(issues_closed, issues_total)
 
+            # ===== Filtros =====
+            # evitar forks e repositórios arquivados
+            if is_fork or is_archived:
+                # pular sem contar
+                continue
+
+            # exigir licença (assumir OSS se spdxId definido e diferente de NOASSERTION)
+            if not license_spdx or license_spdx == "NOASSERTION":
+                continue
+
+            # tamanho mínimo em KB (3 MB = 3072 KB)
+            try:
+                size_ok = (disk_usage is not None) and (int(disk_usage) >= 3072)
+            except Exception:
+                size_ok = False
+            if not size_ok:
+                continue
+
+            # exigir presença de linguagens de programação (evitar repositórios que são só docs/links)
+            acceptable_langs = {
+                'Python', 'JavaScript', 'TypeScript', 'Java', 'C', 'C++', 'Go', 'Rust',
+                'C#', 'Dart', 'Kotlin', 'Scala', 'PHP', 'Ruby', 'Swift', 'R', 'Shell'
+            }
+            has_prog = False
+            if primary_lang in acceptable_langs:
+                has_prog = True
+            else:
+                for ln in lang_nodes:
+                    if ln in acceptable_langs:
+                        has_prog = True
+                        break
+            if not has_prog:
+                continue
+
+            # se passou todos os filtros, adiciona ao resultado e conta
             rows.append({
                 "name_with_owner": name,
                 "stars": stars,
@@ -132,6 +190,9 @@ def main():
                 "issues_closed": issues_closed,
                 "issues_total": issues_total,
                 "issues_closed_ratio": round(issues_closed_ratio, 6),
+                "license_spdx": license_spdx,
+                "disk_usage_kb": disk_usage,
+                "language_nodes": ",".join(lang_nodes),
             })
 
             total += 1
@@ -152,8 +213,9 @@ def main():
         w = csv.DictWriter(f, fieldnames=fieldnames)
         w.writeheader()
         w.writerows(rows)
-
+    total_elapsed = time.time() - start_time
     print(f"OK: gerado {OUTPUT_CSV} com {len(rows)} repositórios.")
+    print(f"Tempo total de coleta: {total_elapsed:.1f}s")
 
 if __name__ == "__main__":
     main()
