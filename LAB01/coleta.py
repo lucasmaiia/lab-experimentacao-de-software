@@ -19,35 +19,36 @@ OUTPUT_CSV = "coleta_repos.csv"
 
 GRAPHQL_URL = "https://api.github.com/graphql"
 
-QUERY = """
-query($pageSize: Int!, $cursor: String) {
-    search(query: "stars:>0 sort:stars-desc", type: REPOSITORY, first: $pageSize, after: $cursor) {
-        pageInfo { hasNextPage endCursor }
-        edges {
-            node {
-                ... on Repository {
-                    nameWithOwner
-                    stargazerCount
-                    createdAt
-                    pushedAt
-                    primaryLanguage { name }
-                    isFork
-                    isArchived
-                    licenseInfo { spdxId }
-                    diskUsage
-                    languages(first: 10) { totalSize nodes { name } }
+def get_query(stars_filter="stars:>0"):
+    return f"""
+    query($pageSize: Int!, $cursor: String) {{
+        search(query: "{stars_filter} sort:stars-desc", type: REPOSITORY, first: $pageSize, after: $cursor) {{
+            pageInfo {{ hasNextPage endCursor }}
+            edges {{
+                node {{
+                    ... on Repository {{
+                        nameWithOwner
+                        stargazerCount
+                        createdAt
+                        pushedAt
+                        primaryLanguage {{ name }}
+                        isFork
+                        isArchived
+                        licenseInfo {{ spdxId }}
+                        diskUsage
+                        languages(first: 10) {{ totalSize nodes {{ name }} }}
 
-                    pullRequests(states: MERGED) { totalCount }
-                    releases { totalCount }
+                        pullRequests(states: MERGED) {{ totalCount }}
+                        releases {{ totalCount }}
 
-                    issuesOpen: issues(states: OPEN) { totalCount }
-                    issuesClosed: issues(states: CLOSED) { totalCount }
-                }
-            }
-        }
-    }
-}
-"""
+                        issuesOpen: issues(states: OPEN) {{ totalCount }}
+                        issuesClosed: issues(states: CLOSED) {{ totalCount }}
+                    }}
+                }}
+            }}
+        }}
+    }}
+    """
 
 def github_graphql(query: str, variables: dict) -> dict:
     payload = json.dumps({"query": query, "variables": variables}).encode("utf-8")
@@ -91,14 +92,17 @@ def main():
     rows = []
     cursor = None
     total = 0
+    seen_repos = set()
+    current_stars_filter = "stars:>0"
+    last_seen_stars = None
 
     while total < TARGET_REPOS:
         variables = {"pageSize": PAGE_SIZE, "cursor": cursor}
-        data = github_graphql(QUERY, variables)
-        # imprimir progresso e tempo decorrido desde o início
+        query_str = get_query(current_stars_filter)
+        data = github_graphql(query_str, variables)
+        
         elapsed = time.time() - start_time
-        print(f"Coletando página... (Total atual: {total})")
-        print(f"Tempo decorrido: {elapsed:.1f}s")
+        print(f"Coletando página... (Filtro: {current_stars_filter} | Total CSV: {total}) - Tempo: {elapsed:.1f}s")
 
         search = data["search"]
         edges = search["edges"]
@@ -111,6 +115,11 @@ def main():
             # Campos básicos
             name = repo["nameWithOwner"]
             stars = repo["stargazerCount"]
+            last_seen_stars = stars
+
+            if name in seen_repos:
+                continue
+            seen_repos.add(name)
 
             # Datas
             created_at = iso_to_dt(repo["createdAt"])
@@ -120,7 +129,8 @@ def main():
             age_days = max(0, (now - created_at).days)
             age_years = age_days / 365.25
 
-            days_since_update = max(0, (now - pushed_at).days)
+            sec_diff = max(0, (now - pushed_at).total_seconds())
+            days_since_update = round(sec_diff / 86400.0, 2)
 
             # Meta dados adicionais para filtragem
             is_fork = repo.get("isFork")
@@ -200,9 +210,16 @@ def main():
                 break
 
         page = search["pageInfo"]
-        if not page["hasNextPage"]:
-            break
-        cursor = page["endCursor"]
+        
+        if page["hasNextPage"]:
+            cursor = page["endCursor"]
+        else:
+            # A API do GitHub limitou em 1000 resultados para a query atual.
+            # Começar uma nova query a partir da quantidade de estrelas do último repositório visto.
+            if not edges or last_seen_stars is None:
+                break # Evita loop infinito se não retornar nada
+            current_stars_filter = f"stars:<={last_seen_stars}"
+            cursor = None
 
         # timer pra não bater repetidamente
         time.sleep(0.5)
