@@ -196,14 +196,16 @@ def summarize_metric(values: List[float]) -> dict:
 
 
 def write_summary_csv(repository_path: Path, class_csv_path: Path, output_dir: Path) -> Path:
-    """Gera um resumo por repositorio com CBO, DIT e LCOM a partir do class.csv."""
+    """Gera um resumo por repositorio com CBO, DIT, LCOM e LOC a partir do class.csv."""
     cbo_values = read_metric_values(class_csv_path, "cbo")
     dit_values = read_metric_values(class_csv_path, "dit")
     lcom_values = read_metric_values(class_csv_path, "lcom")
+    loc_values = read_metric_values(class_csv_path, "loc")
 
     cbo_summary = summarize_metric(cbo_values)
     dit_summary = summarize_metric(dit_values)
     lcom_summary = summarize_metric(lcom_values)
+    loc_summary = summarize_metric(loc_values)
 
     summary_path = output_dir / SUMMARY_FILE_NAME
     with summary_path.open("w", newline="", encoding="utf-8") as csv_file:
@@ -212,6 +214,10 @@ def write_summary_csv(repository_path: Path, class_csv_path: Path, output_dir: P
             fieldnames=[
                 "repository_name",
                 "class_count",
+                "loc_total",
+                "loc_mean",
+                "loc_median",
+                "loc_stdev",
                 "cbo_mean",
                 "cbo_median",
                 "cbo_stdev",
@@ -234,6 +240,10 @@ def write_summary_csv(repository_path: Path, class_csv_path: Path, output_dir: P
             {
                 "repository_name": repository_path.name,
                 "class_count": len(cbo_values),
+                "loc_total": int(sum(loc_values)),
+                "loc_mean": loc_summary["mean"],
+                "loc_median": loc_summary["median"],
+                "loc_stdev": loc_summary["stdev"],
                 "cbo_mean": cbo_summary["mean"],
                 "cbo_median": cbo_summary["median"],
                 "cbo_stdev": cbo_summary["stdev"],
