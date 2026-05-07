@@ -414,4 +414,4 @@ Este estudo analisou **50.981 Pull Requests de 191 repositórios populares do Gi
 
 ---
 
-*Relatório gerado em Maio de 2026 | Laboratório de Experimentação de Software — PUC Minas*
+*Maio de 2026 | Laboratório de Experimentação de Software — PUC Minas*
