@@ -1,5 +1,5 @@
 # Lab 03 — Code Review em Repositórios Open Source
-## Relatório Final — Sprint 02
+## Relatório — Sprint 02
 
 **Disciplina:** Laboratório de Experimentação de Software  
 **Curso:** Engenharia de Software — PUC Minas  
