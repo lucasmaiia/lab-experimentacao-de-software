@@ -1,0 +1,15 @@
+metrica,vs,r_spearman,p_valor,n,rq,sig
+files_changed,merged,0.0788,0.0,50981,RQ01,***
+additions,merged,0.0248,0.0,50981,RQ01,***
+deletions,merged,0.0825,0.0,50981,RQ01,***
+analysis_time_hours,merged,-0.165,0.0,50981,RQ02,***
+body_char_count,merged,-0.0189,2.1e-05,50981,RQ03,***
+participants_count,merged,-0.0846,0.0,50981,RQ04,***
+comments_count,merged,-0.1158,0.0,50981,RQ04,***
+files_changed,review_count,0.2538,0.0,50981,RQ05,***
+additions,review_count,0.3362,0.0,50981,RQ05,***
+deletions,review_count,0.1678,0.0,50981,RQ05,***
+analysis_time_hours,review_count,0.1783,0.0,50981,RQ06,***
+body_char_count,review_count,0.1813,0.0,50981,RQ07,***
+participants_count,review_count,0.3779,0.0,50981,RQ08,***
+comments_count,review_count,0.2673,0.0,50981,RQ08,***
