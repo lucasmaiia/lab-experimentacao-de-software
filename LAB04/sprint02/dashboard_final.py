@@ -157,6 +157,7 @@ if df is not None:
             color='sgPartido'
         )
         fig_rq3.update_traces(hovertemplate='Partido: %{x}<br>Gasto: R$ %{y:,.2f}<br>Deputado: %{customdata[0]}')
+        fig_rq3.update_layout(showlegend=False)
         st.plotly_chart(fig_rq3, use_container_width=True)
         
         st.markdown("**Análise e Resposta:** O Gráfico de Caixa (Boxplot) nos permite ver a média, a dispersão e os *outliers*. Cada 'ponto' que aparece fora do caixote superior ou inferior representa um parlamentar cujo gasto destoou estatisticamente do padrão do seu próprio partido, caracterizando uma anomalia (positiva ou negativa). Ao passar o mouse sobre o ponto isolado, podemos ver o nome de quem gastou muito além dos seus colegas de partido.")
@@ -189,12 +190,13 @@ if df is not None:
                 color_continuous_scale=px.colors.sequential.Oranges
             )
             fig_rq4.update_traces(hovertemplate='Fornecedor: %{x}<br>Recebeu: R$ %{y:,.2f}')
+            fig_rq4.update_layout(coloraxis_showscale=False)
             st.plotly_chart(fig_rq4, use_container_width=True)
             
         with col_pareto2:
-            st.metric("Total Gasto (Câmara)", f"R$ {total_gasto:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
-            st.metric("Total Gasto (Apenas Top 20 Empresas)", f"R$ {gasto_top_20:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
+            st.metric("Total (Câmara inteira)", f"R$ {total_gasto:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
+            st.metric("Gasto nas Top 20", f"R$ {gasto_top_20:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.'))
             percentual = (gasto_top_20 / total_gasto) * 100
-            st.metric("Concentração no Top 20", f"{percentual:.2f}% do orçamento total")
+            st.metric("Fatia do Top 20 (%)", f"{percentual:.2f}%")
             
         st.markdown("**Análise e Resposta:** Uma análise de concentração demonstra se o mercado que atende o parlamento é difuso ou concentrado. Caso as top 20 empresas (de um total de dezenas de milhares de CNPJs no dataset) representem uma porcentagem alta dos milhões distribuídos, evidenciamos um monopólio de prestação de serviços (geralmente companhias aéreas ou grandes empresas de marketing/locação).")

@@ -19,6 +19,8 @@ Como trabalho alternativo (para alunos não matriculados em TIS 6), utilizamos o
 - Expansão do Dashboard com visualizações interativas para responder a duas Questões de Pesquisa (RQs).
 - **RQ1:** Quais são os tipos de despesas que mais consomem a Cota Parlamentar?
 - **RQ2:** Quais partidos e estados (UF) apresentam o maior gasto médio na câmara?
+- **RQ3:** Existem deputados com comportamento anômalo de gastos (Outliers) comparados aos seus partidos?
+- **RQ4:** Existe uma alta concentração de repasses em poucos fornecedores (Monopólios/Pareto)?
 
 ---
 
