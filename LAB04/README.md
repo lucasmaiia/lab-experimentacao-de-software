@@ -11,11 +11,11 @@ Como trabalho alternativo (para alunos não matriculados em TIS 6), utilizamos o
 
 ## 📊 Estrutura do LAB04
 
-### Sprint 01 (Desenvolvida por: Leandro Pacheco)
+### Sprint 01
 - Script de Coleta Automatizada de Dados Abertos.
 - Dashboard inicial contendo a Caracterização do Dataset (métricas gerais, limpeza de dados e distribuição de notas por partido e estado).
 
-### Sprint 02 (Desenvolvida por: Lucas Maia)
+### Sprint 02 
 - Expansão do Dashboard com visualizações interativas para responder a duas Questões de Pesquisa (RQs).
 - **RQ1:** Quais são os tipos de despesas que mais consomem a Cota Parlamentar?
 - **RQ2:** Quais partidos e estados (UF) apresentam o maior gasto médio na câmara?
@@ -24,7 +24,7 @@ Como trabalho alternativo (para alunos não matriculados em TIS 6), utilizamos o
 
 ---
 
-## 🚀 Como Rodar o Dashboard Localmente
+## Como Rodar o Dashboard Localmente
 
 **Pré-requisitos:**  
 Você precisará do Python instalado e das bibliotecas listadas abaixo.
