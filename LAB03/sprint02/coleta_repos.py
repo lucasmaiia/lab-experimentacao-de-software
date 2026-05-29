@@ -74,7 +74,7 @@ def graphql_request(query: str, variables: dict) -> dict:
 def main() -> int:
     start = time.time()
     print(f"Objetivo: {TARGET_REPOS} repositórios com ≥{MIN_PRS} PRs (MERGED+CLOSED)")
-    print(f"Page size: {PAGE_SIZE} (sprint01 usava 10 — 10x menos requisições)")
+    print(f"Page size: {PAGE_SIZE} (sprint01 usava 10 - 10x menos requisições)")
     print(f"Arquivo de saída: {OUTPUT_CSV}\n")
 
     rows: list = []
@@ -126,7 +126,7 @@ def main() -> int:
             })
 
             elapsed = time.time() - start
-            print(f"  [{len(rows)}/{TARGET_REPOS}] {name} (★{stars} | PRs={total_prs}) — {elapsed:.0f}s")
+            print(f"  [{len(rows)}/{TARGET_REPOS}] {name} (★{stars} | PRs={total_prs}) - {elapsed:.0f}s")
 
             if len(rows) >= TARGET_REPOS:
                 break
@@ -139,7 +139,7 @@ def main() -> int:
                 break
             stars_filter = f"stars:<={last_stars} sort:stars-desc"
             cursor = None
-        # sem sleep entre páginas — a sprint01 dormia 0.5s aqui
+        # sem sleep entre páginas - a sprint01 dormia 0.5s aqui
 
     if not rows:
         print("Nenhum repositório coletado.", file=sys.stderr)

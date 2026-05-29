@@ -286,7 +286,7 @@ def main() -> int:
         owner, name = name_with_owner.split("/", 1)
 
         elapsed = time.time() - start
-        print(f"[{done_count + i}/{total}] {name_with_owner} — {elapsed:.0f}s")
+        print(f"[{done_count + i}/{total}] {name_with_owner} - {elapsed:.0f}s")
 
         try:
             prs = collect_all_prs(owner, name)

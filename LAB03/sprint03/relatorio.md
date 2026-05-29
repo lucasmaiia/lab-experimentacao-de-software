@@ -1,8 +1,8 @@
-# Lab 03 — Code Review em Repositórios Open Source
-## Relatório Final — Sprint 03
+# Lab 03 - Code Review em Repositórios Open Source
+## Relatório Final - Sprint 03
 
 **Disciplina:** Laboratório de Experimentação de Software  
-**Curso:** Engenharia de Software — PUC Minas  
+**Curso:** Engenharia de Software - PUC Minas  
 **Autores:** Lucas Maia, Leandro Caldas  
 **Data:** Maio de 2026
 
@@ -23,7 +23,7 @@
 
 ## 1. Introdução e Hipóteses
 
-O *code review* é uma prática central no desenvolvimento de software moderno, especialmente em projetos open source hospedados no GitHub. Por meio de *Pull Requests* (PRs), colaboradores propõem mudanças que passam por um processo de revisão antes de serem integradas ao repositório. O desfecho desse processo — PR aceito (`MERGED`) ou rejeitado (`CLOSED`) — e a intensidade do ciclo de revisões são influenciados por múltiplos fatores relacionados ao tamanho da contribuição, ao tempo de análise, à qualidade da descrição e ao nível de engajamento da comunidade.
+O *code review* é uma prática central no desenvolvimento de software moderno, especialmente em projetos open source hospedados no GitHub. Por meio de *Pull Requests* (PRs), colaboradores propõem mudanças que passam por um processo de revisão antes de serem integradas ao repositório. O desfecho desse processo - PR aceito (`MERGED`) ou rejeitado (`CLOSED`) - e a intensidade do ciclo de revisões são influenciados por múltiplos fatores relacionados ao tamanho da contribuição, ao tempo de análise, à qualidade da descrição e ao nível de engajamento da comunidade.
 
 Compreender esses fatores tem valor prático direto: permite que autores submetam contribuições com maior chance de aceitação e que mantenedores de projetos ajustem seus processos de revisão. Este estudo analisa **50.981 PRs de 191 repositórios populares do GitHub** para identificar correlações entre características dos PRs e seus desfechos.
 
@@ -48,7 +48,7 @@ A tabela a seguir apresenta as hipóteses informais formuladas antes da análise
 
 O estudo está organizado em duas dimensões de análise, cada uma com quatro questões de pesquisa:
 
-### Dimensão A — Feedback Final das Revisões (Status do PR)
+### Dimensão A - Feedback Final das Revisões (Status do PR)
 
 > **RQ01.** Qual a relação entre o **tamanho** dos PRs e o feedback final das revisões?
 
@@ -58,7 +58,7 @@ O estudo está organizado em duas dimensões de análise, cada uma com quatro qu
 
 > **RQ04.** Qual a relação entre as **interações** nos PRs e o feedback final das revisões?
 
-### Dimensão B — Número de Revisões
+### Dimensão B - Número de Revisões
 
 > **RQ05.** Qual a relação entre o **tamanho** dos PRs e o número de revisões realizadas?
 
@@ -135,7 +135,7 @@ Para cada repositório, foram coletados até **500 PRs** (priorizando MERGED, de
 
 ### 3.5 Análise Estatística
 
-Para responder às questões de pesquisa, utilizamos o **coeficiente de correlação de Spearman (ρ)**, que opera sobre postos (*ranks*) em vez de valores brutos, sendo robusto às distribuições assimétricas de cauda longa típicas de métricas de repositórios open source — onde Pearson seria inadequado por exigir normalidade. Para confirmar as diferenças entre grupos MERGED e CLOSED, complementamos com o **teste de Mann-Whitney U**. O nível de significância adotado é **α = 0,05**.
+Para responder às questões de pesquisa, utilizamos o **coeficiente de correlação de Spearman (ρ)**, que opera sobre postos (*ranks*) em vez de valores brutos, sendo robusto às distribuições assimétricas de cauda longa típicas de métricas de repositórios open source - onde Pearson seria inadequado por exigir normalidade. Para confirmar as diferenças entre grupos MERGED e CLOSED, complementamos com o **teste de Mann-Whitney U**. O nível de significância adotado é **α = 0,05**.
 
 ---
 
@@ -155,7 +155,7 @@ O dataset final compreende **50.981 PRs de 191 repositórios únicos**, coletado
 
 A Figura 1 apresenta a distribuição por status e os 20 repositórios com maior volume de PRs coletados.
 
-![Figura 1 — Distribuição do dataset](figuras/figura1_distribuicao.png)
+![Figura 1 - Distribuição do dataset](figuras/figura1_distribuicao.png)
 *Figura 1: Distribuição dos PRs por status (esquerda) e os 20 repositórios mais representados no dataset (direita).*
 
 A alta proporção de PRs MERGED (88,7%) é esperada em repositórios populares e maduros: o filtro de ≥ 1 revisão seleciona PRs que passaram por avaliação humana efetiva, e projetos bem gerenciados tendem a direcionar colaboradores antes de fechar PRs sem merge.
@@ -175,23 +175,23 @@ A tabela abaixo apresenta as medianas de cada métrica por status do PR. Todas a
 | Comentários (`comments_count`) | 1 | 1 | 2 |
 | Revisões (`review_count`) | 1 | **2** | 1 |
 
-A principal diferença entre os grupos está no **tempo de análise**: PRs CLOSED levam ~116 horas (≈5 dias) em mediana, contra ~26 horas dos PRs MERGED — uma diferença de **4,4×**. PRs MERGED também possuem mediana de revisões mais alta (2 vs 1), indicando que PRs aceitos efetivamente passam por mais avaliações formais.
+A principal diferença entre os grupos está no **tempo de análise**: PRs CLOSED levam ~116 horas (≈5 dias) em mediana, contra ~26 horas dos PRs MERGED - uma diferença de **4,4×**. PRs MERGED também possuem mediana de revisões mais alta (2 vs 1), indicando que PRs aceitos efetivamente passam por mais avaliações formais.
 
 As Figuras 2a e 2b ilustram as distribuições por status em escala logarítmica, permitindo comparar grupos com distribuições muito assimétricas. Os valores das medianas estão anotados diretamente em cada boxplot.
 
-![Figura 2a — Tamanho e Tempo](figuras/figura2a_tamanho_tempo.png)
+![Figura 2a - Tamanho e Tempo](figuras/figura2a_tamanho_tempo.png)
 *Figura 2a: Distribuição das métricas de tamanho e tempo por status do PR (escala logarítmica; zeros excluídos da visualização).*
 
-![Figura 2b — Descrição e Interações](figuras/figura2b_descricao_interacoes.png)
+![Figura 2b - Descrição e Interações](figuras/figura2b_descricao_interacoes.png)
 *Figura 2b: Distribuição das métricas de descrição e interações por status do PR (escala logarítmica; zeros excluídos da visualização).*
 
 ---
 
 ## 5. Resultados Obtidos
 
-### 5.1 Dimensão A — Feedback Final (Status do PR)
+### 5.1 Dimensão A - Feedback Final (Status do PR)
 
-#### RQ01 — Tamanho × Status
+#### RQ01 - Tamanho × Status
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
@@ -199,52 +199,52 @@ As Figuras 2a e 2b ilustram as distribuições por status em escala logarítmica
 | `additions` | +0,0248 | < 0,001 | *** |
 | `deletions` | +0,0825 | < 0,001 | *** |
 
-**Resultado:** Correlação **positiva fraca** — PRs ligeiramente maiores têm marginalmente maior probabilidade de serem aceitos.
+**Resultado:** Correlação **positiva fraca** - PRs ligeiramente maiores têm marginalmente maior probabilidade de serem aceitos.
 
 As medianas de `files_changed` são idênticas (2/2), mas PRs MERGED possuem mais linhas adicionadas (26 vs 22) e removidas (5 vs 2). O efeito é estatisticamente significativo, mas de magnitude reduzida (|ρ| < 0,09). A sobreposição das distribuições é visível na **Figura 2a** (subplots de arquivos alterados, linhas adicionadas e removidas).
 
 ---
 
-#### RQ02 — Tempo de Análise × Status
+#### RQ02 - Tempo de Análise × Status
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
 | `analysis_time_hours` | −0,1650 | < 0,001 | *** |
 
-**Resultado:** Correlação **negativa moderada** — mais tempo de análise está associado à rejeição do PR.
+**Resultado:** Correlação **negativa moderada** - mais tempo de análise está associado à rejeição do PR.
 
-Esta é a correlação de maior magnitude na Dimensão A (|ρ| = 0,165). PRs CLOSED ficam abertos por ~116 horas em mediana, enquanto MERGED ficam ~26 horas — diferença de 4,4×, claramente visível no subplot de tempo de análise da **Figura 2a**. O longo tempo de análise pode refletir PRs que acumulam conflitos com o branch principal, perdem relevância ou aguardam indefinidamente por ajustes solicitados.
+Esta é a correlação de maior magnitude na Dimensão A (|ρ| = 0,165). PRs CLOSED ficam abertos por ~116 horas em mediana, enquanto MERGED ficam ~26 horas - diferença de 4,4×, claramente visível no subplot de tempo de análise da **Figura 2a**. O longo tempo de análise pode refletir PRs que acumulam conflitos com o branch principal, perdem relevância ou aguardam indefinidamente por ajustes solicitados.
 
 ---
 
-#### RQ03 — Descrição × Status
+#### RQ03 - Descrição × Status
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
 | `body_char_count` | −0,0189 | < 0,001 | *** |
 
-**Resultado:** Correlação **negativa muito fraca** — PRs CLOSED têm descrições ligeiramente mais longas que PRs MERGED.
+**Resultado:** Correlação **negativa muito fraca** - PRs CLOSED têm descrições ligeiramente mais longas que PRs MERGED.
 
 A mediana de `body_char_count` é de 864 caracteres para CLOSED vs 795 para MERGED. O efeito é mínimo em termos práticos, mas estatisticamente significativo (n = 50.981). O subplot de tamanho da descrição na **Figura 2b** mostra a alta sobreposição entre os dois grupos, coerente com a correlação quase nula.
 
 ---
 
-#### RQ04 — Interações × Status
+#### RQ04 - Interações × Status
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
 | `participants_count` | −0,0846 | < 0,001 | *** |
 | `comments_count` | −0,1158 | < 0,001 | *** |
 
-**Resultado:** Correlação **negativa fraca a moderada** — mais interações estão associadas à rejeição do PR.
+**Resultado:** Correlação **negativa fraca a moderada** - mais interações estão associadas à rejeição do PR.
 
 PRs CLOSED têm mediana de 3 participantes e 2 comentários; PRs MERGED têm mediana de 2 e 1 respectivamente. O número de comentários apresenta a segunda maior correlação com o status (|ρ| = 0,116), indicando que controvérsias explícitas no PR predizem rejeição com razoável consistência. Os subplots de participantes e comentários na **Figura 2b** evidenciam a separação entre os grupos, especialmente nas caixas superiores das distribuições.
 
 ---
 
-### 5.2 Dimensão B — Número de Revisões
+### 5.2 Dimensão B - Número de Revisões
 
-#### RQ05 — Tamanho × Revisões
+#### RQ05 - Tamanho × Revisões
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
@@ -252,44 +252,44 @@ PRs CLOSED têm mediana de 3 participantes e 2 comentários; PRs MERGED têm med
 | `additions` | +0,3362 | < 0,001 | *** |
 | `deletions` | +0,1678 | < 0,001 | *** |
 
-**Resultado:** Correlação **positiva moderada a forte** — PRs maiores recebem mais revisões.
+**Resultado:** Correlação **positiva moderada a forte** - PRs maiores recebem mais revisões.
 
 Esta é a segunda maior correlação do estudo (ρ = +0,336 para `additions`). O efeito é mais pronunciado para linhas adicionadas do que para arquivos alterados ou remoções, sugerindo que adicionar código gera mais questionamentos e sugestões durante a revisão. A **Figura 2a** permite observar que PRs com mais linhas adicionadas tendem a empurrar a distribuição para valores mais altos, ainda que a sobreposição seja ampla.
 
 ---
 
-#### RQ06 — Tempo de Análise × Revisões
+#### RQ06 - Tempo de Análise × Revisões
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
 | `analysis_time_hours` | +0,1783 | < 0,001 | *** |
 
-**Resultado:** Correlação **positiva fraca** — mais ciclos de revisão prolongam o tempo de análise.
+**Resultado:** Correlação **positiva fraca** - mais ciclos de revisão prolongam o tempo de análise.
 
 Cada ciclo de revisão → ajuste → nova revisão consome tempo adicional. A magnitude moderada (ρ = +0,178) sugere que outros fatores (complexidade do domínio, disponibilidade dos revisores, fuso horário dos participantes) também determinam a duração. O subplot de tempo de análise na **Figura 2a** mostra que ambos os grupos têm distribuições de longa cauda, reforçando a natureza heterogênea desse processo.
 
 ---
 
-#### RQ07 — Descrição × Revisões
+#### RQ07 - Descrição × Revisões
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
 | `body_char_count` | +0,1813 | < 0,001 | *** |
 
-**Resultado:** Correlação **positiva fraca** — PRs com descrições mais longas recebem mais revisões.
+**Resultado:** Correlação **positiva fraca** - PRs com descrições mais longas recebem mais revisões.
 
-O resultado vai na direção oposta à hipótese inicial (esperávamos correlação negativa). PRs que exigem descrição extensa são, por natureza, mais complexos — e complexidade gera mais ciclos de revisão, independentemente do cuidado posto na descrição. O subplot de tamanho da descrição na **Figura 2b** confirma que PRs com mais revisões tendem a ter descrições mais longas, embora a variação seja alta.
+O resultado vai na direção oposta à hipótese inicial (esperávamos correlação negativa). PRs que exigem descrição extensa são, por natureza, mais complexos - e complexidade gera mais ciclos de revisão, independentemente do cuidado posto na descrição. O subplot de tamanho da descrição na **Figura 2b** confirma que PRs com mais revisões tendem a ter descrições mais longas, embora a variação seja alta.
 
 ---
 
-#### RQ08 — Interações × Revisões
+#### RQ08 - Interações × Revisões
 
 | Métrica | ρ Spearman | p-valor | Significância |
 |---------|:----------:|:-------:|:-------------:|
 | `participants_count` | +0,3779 | < 0,001 | *** |
 | `comments_count` | +0,2673 | < 0,001 | *** |
 
-**Resultado:** Correlação **positiva moderada a forte** — mais interações estão fortemente associadas a mais revisões.
+**Resultado:** Correlação **positiva moderada a forte** - mais interações estão fortemente associadas a mais revisões.
 
 Esta é a correlação de maior magnitude em todo o estudo (ρ = +0,378 para `participants_count`). Revisões, participantes e comentários são manifestações distintas do mesmo fenômeno: o grau de engajamento que um PR atrai na comunidade. Os subplots de participantes e revisões na **Figura 2b** mostram que a separação entre grupos de alto e baixo engajamento é a mais nítida de todas as métricas analisadas.
 
@@ -299,13 +299,13 @@ Esta é a correlação de maior magnitude em todo o estudo (ρ = +0,378 para `pa
 
 As Figuras 3, 4 e 5 sumarizam todos os coeficientes de Spearman nas duas dimensões de análise.
 
-![Figura 3 — Correlações Dimensão A](figuras/figura3_correlacoes_dim_a.png)
+![Figura 3 - Correlações Dimensão A](figuras/figura3_correlacoes_dim_a.png)
 *Figura 3: Coeficientes de correlação de Spearman para a Dimensão A (Status do PR). Barras azuis indicam correlação positiva com MERGED; barras vermelhas indicam correlação negativa (associação com CLOSED).*
 
-![Figura 4 — Correlações Dimensão B](figuras/figura4_correlacoes_dim_b.png)
-*Figura 4: Coeficientes de correlação de Spearman para a Dimensão B (Número de Revisões). Todos os coeficientes são positivos — mais volume em qualquer dimensão se associa a mais revisões.*
+![Figura 4 - Correlações Dimensão B](figuras/figura4_correlacoes_dim_b.png)
+*Figura 4: Coeficientes de correlação de Spearman para a Dimensão B (Número de Revisões). Todos os coeficientes são positivos - mais volume em qualquer dimensão se associa a mais revisões.*
 
-![Figura 5 — Heatmap de Correlações](figuras/figura5_heatmap_correlacoes.png)
+![Figura 5 - Heatmap de Correlações](figuras/figura5_heatmap_correlacoes.png)
 *Figura 5: Heatmap completo dos coeficientes de Spearman para RQ01–RQ08. Tons vermelhos indicam correlação positiva; tons azuis indicam correlação negativa. Todos os resultados são estatisticamente significativos (p < 0,001).*
 
 ---
@@ -329,19 +329,19 @@ Das 8 hipóteses, **4 foram confirmadas** (RQ02, RQ05, RQ06, RQ08) e **4 foram r
 
 ### 6.2 Análise das Surpresas
 
-**RQ01 — Por que PRs maiores são ligeiramente mais aceitos?**
+**RQ01 - Por que PRs maiores são ligeiramente mais aceitos?**
 
 A hipótese intuitiva de que revisores preferem PRs pequenos é contraditada pelos dados. Uma explicação plausível é o **viés de seleção do dataset**: os 191 repositórios analisados são os mais populares do GitHub, onde PRs de feature nova e refatoração substancial são mais comuns e geralmente chegam a um nível de qualidade maior antes de ser submetidos. PRs pequenos nesse contexto frequentemente são patches triviais ou experimentais com menor preparo, levando a mais rejeições proporcionalmente.
 
-**RQ03 — Por que descrições mais longas estão associadas a PRs rejeitados?**
+**RQ03 - Por que descrições mais longas estão associadas a PRs rejeitados?**
 
 A expectativa era que uma descrição detalhada facilitasse a revisão e aumentasse a aceitação. O que os dados sugerem é o oposto: autores de PRs que serão rejeitados frequentemente **investem mais texto tentando justificar** uma contribuição controversa, enquanto PRs bem encaixados no projeto são auto-explicativos pelo próprio código. A descrição longa pode ser um sinal de que o PR está "nadando contra a corrente" do projeto.
 
-**RQ04 — Por que mais interações estão associadas à rejeição?**
+**RQ04 - Por que mais interações estão associadas à rejeição?**
 
 A hipótese assumia que engajamento = interesse positivo. Mas interações em PRs também podem refletir **controvérsia e resistência**: múltiplos revisores apontando problemas diferentes, debates sobre design, pedidos de rework. PRs simples e alinhados com a visão do projeto são aceitos rapidamente com poucos comentários; PRs problemáticos acumulam objeções ao longo do tempo antes de serem fechados.
 
-**RQ07 — Por que descrições mais longas levam a mais revisões?**
+**RQ07 - Por que descrições mais longas levam a mais revisões?**
 
 A hipótese era que uma boa descrição *reduz* revisões ao esclarecer dúvidas antecipadamente. O que observamos é que **descrição longa é um proxy de complexidade**: PRs que precisam de muita explicação são intrinsecamente mais complexos, e complexidade gera mais ciclos de revisão independentemente da qualidade da documentação.
 
@@ -349,7 +349,7 @@ A hipótese era que uma boa descrição *reduz* revisões ao esclarecer dúvidas
 
 É importante destacar que **correlação não implica causalidade**. As relações observadas podem ser mediadas por variáveis não capturadas no dataset:
 
-- **Complexidade do domínio:** PRs em componentes críticos naturalmente geram mais discussão, mais revisões e levam mais tempo — independentemente de seu tamanho.
+- **Complexidade do domínio:** PRs em componentes críticos naturalmente geram mais discussão, mais revisões e levam mais tempo - independentemente de seu tamanho.
 - **Política do projeto:** diferentes projetos têm culturas de review muito distintas; um PR que seria aceito em um projeto pode ser rejeitado em outro.
 - **Experiência do autor:** contribuidores recorrentes tendem a submeter PRs melhor alinhados, independentemente do tamanho ou da descrição.
 - **Qualidade vs. quantidade:** `body_char_count` mede apenas o volume de texto da descrição, não sua clareza ou relevância.
@@ -373,7 +373,7 @@ Com base nos resultados obtidos, derivamos recomendações práticas para difere
 
 | Insight | Recomendação prática |
 |---------|---------------------|
-| PRs CLOSED ficam abertos 4,4× mais tempo que MERGED (seção 4.2) | Estabeleça SLA de resposta inicial (ex.: 48 horas). Uma resposta rápida — mesmo pedindo ajustes — reduz o tempo total e aumenta a taxa de aceitação. |
+| PRs CLOSED ficam abertos 4,4× mais tempo que MERGED (seção 4.2) | Estabeleça SLA de resposta inicial (ex.: 48 horas). Uma resposta rápida - mesmo pedindo ajustes - reduz o tempo total e aumenta a taxa de aceitação. |
 | Mais interações correlacionam com mais revisões (RQ08) | Monitore PRs com alto número de comentários como sinais de controvérsia. Intervenha cedo para clarificar se o PR tem chance de ser aceito. |
 | Contribuições maiores tendem a ser aceitas em projetos maduros (RQ01) | Documente nas contribuição guidelines o escopo esperado de PRs, evitando tanto contribuições triviais quanto super-abrangentes. |
 
@@ -390,11 +390,11 @@ Com base nos resultados obtidos, derivamos recomendações práticas para difere
 
 ## 8. Conclusão
 
-Este estudo analisou **50.981 Pull Requests de 191 repositórios populares do GitHub** para investigar as relações entre características dos PRs — tamanho, tempo de análise, qualidade da descrição e interações — e dois desfechos: o status final (MERGED ou CLOSED) e o número de ciclos de revisão.
+Este estudo analisou **50.981 Pull Requests de 191 repositórios populares do GitHub** para investigar as relações entre características dos PRs - tamanho, tempo de análise, qualidade da descrição e interações - e dois desfechos: o status final (MERGED ou CLOSED) e o número de ciclos de revisão.
 
 ### Principais Achados
 
-**Dimensão A (Status do PR):** O fator mais fortemente associado ao desfecho do PR é o **tempo de análise** (ρ = −0,165): PRs que ficam abertos por mais tempo têm maior probabilidade de serem rejeitados. O número de comentários (ρ = −0,116) e de participantes (ρ = −0,085) também prediz rejeição, contrariando a hipótese inicial de que engajamento é positivo — na prática, mais discussão indica controvérsia, não interesse construtivo.
+**Dimensão A (Status do PR):** O fator mais fortemente associado ao desfecho do PR é o **tempo de análise** (ρ = −0,165): PRs que ficam abertos por mais tempo têm maior probabilidade de serem rejeitados. O número de comentários (ρ = −0,116) e de participantes (ρ = −0,085) também prediz rejeição, contrariando a hipótese inicial de que engajamento é positivo - na prática, mais discussão indica controvérsia, não interesse construtivo.
 
 **Dimensão B (Número de Revisões):** O maior preditor de múltiplas revisões é o **número de participantes** (ρ = +0,378), seguido de perto pelo volume de adições de código (ρ = +0,336). Mais revisões, mais participantes e mais comentários são manifestações do mesmo fenômeno: PRs que atraem atenção da comunidade engajam mais em todas as dimensões.
 
@@ -414,4 +414,4 @@ Este estudo analisou **50.981 Pull Requests de 191 repositórios populares do Gi
 
 ---
 
-*Maio de 2026 | Laboratório de Experimentação de Software — PUC Minas*
+*Maio de 2026 | Laboratório de Experimentação de Software - PUC Minas*

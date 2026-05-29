@@ -156,7 +156,7 @@ def parse_md(doc: Document, lines: list[str]) -> None:
             if lang == "mermaid":
                 p = doc.add_paragraph()
                 p.style = "Normal"
-                r = p.add_run("[Diagrama de fluxo — ver versão online do relatório]")
+                r = p.add_run("[Diagrama de fluxo - ver versão online do relatório]")
                 r.italic = True
                 r.font.color.rgb = RGBColor(0x88, 0x88, 0x88)
             else:

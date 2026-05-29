@@ -1,4 +1,4 @@
-# 📊 Laboratório 02 — Estudo das Características de Qualidade de Sistemas Java
+# 📊 Laboratório 02 - Estudo das Características de Qualidade de Sistemas Java
 
 ## 📌 Sobre o Projeto
 

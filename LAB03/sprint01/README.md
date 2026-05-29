@@ -1,4 +1,4 @@
-# LAB03 — Sprint 01
+# LAB03 - Sprint 01
 
 Seleção de repositórios e criação dos scripts de coleta de PRs e métricas para análise de code review.
 
@@ -44,7 +44,7 @@ Para cada repositório em `repositorios.csv`, coleta até 500 PRs elegíveis e s
 - Pelo menos 1 review
 - Tempo de análise > 1 hora (criação → merge/close)
 
-**Suporte a retomada:** Se o script for interrompido, basta executá-lo novamente — ele pula repositórios já coletados.
+**Suporte a retomada:** Se o script for interrompido, basta executá-lo novamente - ele pula repositórios já coletados.
 
 ## Métricas coletadas
 

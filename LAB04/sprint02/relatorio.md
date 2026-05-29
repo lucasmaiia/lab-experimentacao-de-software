@@ -1,8 +1,8 @@
-# Lab 04 — Business Intelligence em Repositórios Open Source
-## Relatório Final — Sprint 03
+# Lab 04 - Business Intelligence em Repositórios Open Source
+## Relatório Final - Sprint 03
 
 **Disciplina:** Laboratório de Experimentação de Software  
-**Curso:** Engenharia de Software — PUC Minas  
+**Curso:** Engenharia de Software - PUC Minas  
 **Autores:** Lucas Maia, Leandro Caldas  
 **Data:** Maio de 2026
 
@@ -32,19 +32,19 @@ Este estudo aplica técnicas de **Business Intelligence (BI)** para explorar e v
 
 | RQ | Pergunta (resumida) | Hipótese inicial |
 |----|---------------------|-----------------|
-| RQ1 | Adoção e tipos de políticas | Esperamos que a adoção seja baixa — a maioria dos repositórios ainda não trata explicitamente o tema. Dos que adotam, esperamos predominância de políticas de *disclosure* em detrimento de proibições. |
-| RQ2 | Política × engajamento | Repositórios com política de IA tendem a ser mais maduros e gerenciados, com maior volume de PRs e issues — reflexo de uma cultura de contribuição mais estruturada. |
+| RQ1 | Adoção e tipos de políticas | Esperamos que a adoção seja baixa - a maioria dos repositórios ainda não trata explicitamente o tema. Dos que adotam, esperamos predominância de políticas de *disclosure* em detrimento de proibições. |
+| RQ2 | Política × engajamento | Repositórios com política de IA tendem a ser mais maduros e gerenciados, com maior volume de PRs e issues - reflexo de uma cultura de contribuição mais estruturada. |
 | RQ3 | Política × colaboração | Projetos com política apresentam processos mais eficientes: maior taxa de merge e menor tempo de ciclo de PR, indicando maior clareza nas diretrizes de contribuição. |
 
 ---
 
 ## 2. Questões de Pesquisa
 
-> **RQ1 — Adoção & Classificação:** Qual é o nível de adoção de políticas de uso de IA em repositórios open-source populares e quais padrões (tipos) de políticas emergem?
+> **RQ1 - Adoção & Classificação:** Qual é o nível de adoção de políticas de uso de IA em repositórios open-source populares e quais padrões (tipos) de políticas emergem?
 
-> **RQ2 — Impacto no Engajamento:** Como a presença e o tipo de política de IA se relacionam com o volume de contribuições e o nível de engajamento em projetos open-source?
+> **RQ2 - Impacto no Engajamento:** Como a presença e o tipo de política de IA se relacionam com o volume de contribuições e o nível de engajamento em projetos open-source?
 
-> **RQ3 — Impacto na Colaboração:** Como a presença e o tipo de política de IA se relacionam com a responsividade e a eficiência do fluxo de contribuição nos projetos?
+> **RQ3 - Impacto na Colaboração:** Como a presença e o tipo de política de IA se relacionam com a responsividade e a eficiência do fluxo de contribuição nos projetos?
 
 ---
 
@@ -68,9 +68,9 @@ top_repos_filtered.csv          policy_candidates_grouped_by_repo.csv
                                ↓
                    Dashboard Streamlit (dashboard.py)
                     Tab 1: Caracterização do Dataset
-                    Tab 2: RQ1 — Adoção & Classificação
-                    Tab 3: RQ2 — Impacto no Engajamento
-                    Tab 4: RQ3 — Impacto na Colaboração
+                    Tab 2: RQ1 - Adoção & Classificação
+                    Tab 3: RQ2 - Impacto no Engajamento
+                    Tab 4: RQ3 - Impacto na Colaboração
 ```
 
 ### 3.2 Seleção dos Repositórios
@@ -109,7 +109,7 @@ O pipeline gera para cada repositório:
 | `policy_files` | Arquivo(s) onde a política foi encontrada |
 | `matched_ai_terms` | Termos de IA detectados (ex.: `AI-generated`, `LLM`, `generative AI`) |
 | `matched_policy_terms` | Termos de política detectados (ex.: `disclose`, `must`, `prohibited`) |
-| `has_restrictive_language` | Booleano — indica presença de linguagem restritiva |
+| `has_restrictive_language` | Booleano - indica presença de linguagem restritiva |
 | `best_candidate_score` | Score do trecho com melhor correspondência (1–5) |
 | `evidence_blocks` | Trechos de texto completos que motivaram a detecção |
 
@@ -144,9 +144,9 @@ O dashboard foi desenvolvido em **Python** utilizando as bibliotecas **Streamlit
 | Aba | Conteúdo |
 |-----|----------|
 | **Caracterização do Dataset** | KPIs gerais, histogramas de stars e idade, box plots comparativos COM vs SEM política, tabela de medianas |
-| **RQ1 — Adoção & Classificação** | KPIs dos 4 tipos, donut chart, gráfico de barras por tipo, arquivos mais frequentes, termos de IA, linguagem restritiva vs. permissiva |
-| **RQ2 — Engajamento** | KPIs de medianas COM vs SEM, box plots por tipo de política para volume de PRs, issues, colaboradores e comentários |
-| **RQ3 — Colaboração** | KPIs de medianas COM vs SEM, box plots por tipo de política para merge rate, ciclo de PR, tempo de 1ª resposta e reviews até aprovação |
+| **RQ1 - Adoção & Classificação** | KPIs dos 4 tipos, donut chart, gráfico de barras por tipo, arquivos mais frequentes, termos de IA, linguagem restritiva vs. permissiva |
+| **RQ2 - Engajamento** | KPIs de medianas COM vs SEM, box plots por tipo de política para volume de PRs, issues, colaboradores e comentários |
+| **RQ3 - Colaboração** | KPIs de medianas COM vs SEM, box plots por tipo de política para merge rate, ciclo de PR, tempo de 1ª resposta e reviews até aprovação |
 
 A medida de tendência central adotada em todas as visualizações é a **mediana**, por ser robusta a distribuições assimétricas de cauda longa, características típicas de métricas de repositórios open source. Gráficos com diferenças de escala pronunciada utilizam **escala logarítmica no eixo Y** para preservar a legibilidade.
 
@@ -167,13 +167,13 @@ A medida de tendência central adotada em todas as visualizações é a **median
 | Mínimo de estrelas | 14.366 |
 | Máximo de estrelas | 443.636 |
 
-*(Ver: Dashboard, aba **Caracterização do Dataset** — KPI Cards e gráfico "Proporção COM / SEM Política")*
+*(Ver: Dashboard, aba **Caracterização do Dataset** - KPI Cards e gráfico "Proporção COM / SEM Política")*
 
 ### 4.2 Distribuição de Stars e Idade
 
 A distribuição de estrelas é fortemente assimétrica à direita (cauda longa): a maioria dos repositórios concentra-se entre 14.000 e 60.000 estrelas, enquanto poucos ultrapassam 200.000. Os repositórios COM política de IA apresentam distribuição de stars e idade semelhante ao grupo SEM política, indicando que a adoção de políticas não está diretamente correlacionada com a popularidade absoluta do projeto.
 
-*(Ver: Dashboard, aba **Caracterização do Dataset** — gráficos "Distribuição de Stars — Dataset Completo" e "Distribuição da Idade dos Repositórios")*
+*(Ver: Dashboard, aba **Caracterização do Dataset** - gráficos "Distribuição de Stars - Dataset Completo" e "Distribuição da Idade dos Repositórios")*
 
 ### 4.3 Comparativo por Grupo
 
@@ -185,13 +185,13 @@ A distribuição de estrelas é fortemente assimétrica à direita (cauda longa)
 | Avg Comentários em PRs | 2,0 | 1,4 |
 | Avg Comentários em Issues | 4,1 | 3,1 |
 
-*(Ver: Dashboard, aba **Caracterização do Dataset** — box plots "Stars por Grupo", "Idade por Grupo", "Colaboradores Únicos por Grupo" e "PR Merge Rate por Grupo"; e tabela "Medianas por Grupo")*
+*(Ver: Dashboard, aba **Caracterização do Dataset** - box plots "Stars por Grupo", "Idade por Grupo", "Colaboradores Únicos por Grupo" e "PR Merge Rate por Grupo"; e tabela "Medianas por Grupo")*
 
 ---
 
 ## 5. Resultados Obtidos
 
-### 5.1 RQ1 — Adoção & Classificação
+### 5.1 RQ1 - Adoção & Classificação
 
 #### Nível de Adoção
 
@@ -204,21 +204,21 @@ Apenas **12,5% dos 1.000 repositórios mais populares** do GitHub possuem alguma
 | Exigência de Disclosure | 31 | 3,1% |
 | Proibição Total | 30 | 3,0% |
 
-*(Ver: Dashboard, aba **RQ1 — Adoção & Classificação** — KPI Cards dos 4 tipos de política)*
+*(Ver: Dashboard, aba **RQ1 - Adoção & Classificação** - KPI Cards dos 4 tipos de política)*
 
-*(Ver: Dashboard, aba **RQ1 — Adoção & Classificação** — gráficos "Distribuição dos 4 Tipos de Política" e "Quantidade de Repositórios por Tipo de Política")*
+*(Ver: Dashboard, aba **RQ1 - Adoção & Classificação** - gráficos "Distribuição dos 4 Tipos de Política" e "Quantidade de Repositórios por Tipo de Política")*
 
 #### Tipos de Política
 
 Dos 125 repositórios com política:
 
 - **64 (51,2%)** adotam postura permissiva, mencionando IA mas sem impor restrições.
-- **31 (24,8%)** exigem *disclosure* — o colaborador deve declarar o uso de IA, sem proibição.
+- **31 (24,8%)** exigem *disclosure* - o colaborador deve declarar o uso de IA, sem proibição.
 - **30 (24,0%)** proíbem explicitamente contribuições geradas por IA.
 
 Em termos de linguagem utilizada nos documentos, **80 repositórios (64%)** empregam linguagem restritiva e **45 (36%)** utilizam linguagem permissiva ou neutra.
 
-*(Ver: Dashboard, aba **RQ1 — Adoção & Classificação** — gráfico "Linguagem da Política: Restritiva vs Permissiva")*
+*(Ver: Dashboard, aba **RQ1 - Adoção & Classificação** - gráfico "Linguagem da Política: Restritiva vs Permissiva")*
 
 #### Arquivos e Termos Mais Frequentes
 
@@ -226,11 +226,11 @@ O arquivo mais utilizado para registrar políticas de IA é o `CONTRIBUTING.md`,
 
 Os termos de IA mais frequentes nas políticas são variações de `AI-generated`, `LLM`, `generative AI` e `AI tools`, refletindo a terminologia dominante no discurso atual sobre o tema.
 
-*(Ver: Dashboard, aba **RQ1 — Adoção & Classificação** — gráficos "Top 10 Arquivos com Política de IA" e "Termos de IA Mais Frequentes nas Políticas")*
+*(Ver: Dashboard, aba **RQ1 - Adoção & Classificação** - gráficos "Top 10 Arquivos com Política de IA" e "Termos de IA Mais Frequentes nas Políticas")*
 
 ---
 
-### 5.2 RQ2 — Impacto no Engajamento
+### 5.2 RQ2 - Impacto no Engajamento
 
 A tabela abaixo apresenta as medianas das métricas de engajamento para os grupos COM e SEM política de IA:
 
@@ -244,17 +244,17 @@ A tabela abaixo apresenta as medianas das métricas de engajamento para os grupo
 
 Repositórios COM política de IA apresentam consistentemente **maior volume de contribuições** em todas as métricas analisadas. O delta mais expressivo ocorre nas issues abertas (+253 em mediana), sugerindo que projetos com política de IA são proporcionalmente mais ativos.
 
-*(Ver: Dashboard, aba **RQ2 — Engajamento** — KPI Cards "Medianas — COM Política vs SEM Política")*
+*(Ver: Dashboard, aba **RQ2 - Engajamento** - KPI Cards "Medianas - COM Política vs SEM Política")*
 
-*(Ver: Dashboard, aba **RQ2 — Engajamento** — gráficos "PRs Abertos por Tipo de Política" e "Issues Abertas por Tipo de Política")*
+*(Ver: Dashboard, aba **RQ2 - Engajamento** - gráficos "PRs Abertos por Tipo de Política" e "Issues Abertas por Tipo de Política")*
 
-*(Ver: Dashboard, aba **RQ2 — Engajamento** — gráficos "Colaboradores Únicos por Tipo", "Média de Comentários em PRs" e "Média de Comentários em Issues"; e tabela "Medianas por Tipo de Política")*
+*(Ver: Dashboard, aba **RQ2 - Engajamento** - gráficos "Colaboradores Únicos por Tipo", "Média de Comentários em PRs" e "Média de Comentários em Issues"; e tabela "Medianas por Tipo de Política")*
 
-A análise por tipo de política revela que repositórios com **Proibição Total** e **Exigência de Disclosure** tendem a apresentar valores mais elevados de volume de contribuições, enquanto os de **Uso Assistivo Permitido** apresentam valores mais próximos ao grupo sem política. Isso sugere que a adoção de políticas mais rígidas está associada a projetos com maior maturidade e movimento de contribuições — o que faz sentido, pois são projetos com mais a perder em termos de qualidade do código.
+A análise por tipo de política revela que repositórios com **Proibição Total** e **Exigência de Disclosure** tendem a apresentar valores mais elevados de volume de contribuições, enquanto os de **Uso Assistivo Permitido** apresentam valores mais próximos ao grupo sem política. Isso sugere que a adoção de políticas mais rígidas está associada a projetos com maior maturidade e movimento de contribuições - o que faz sentido, pois são projetos com mais a perder em termos de qualidade do código.
 
 ---
 
-### 5.3 RQ3 — Impacto na Colaboração
+### 5.3 RQ3 - Impacto na Colaboração
 
 | Métrica | COM Política (mediana) | SEM Política (mediana) | Delta |
 |---------|:---------------------:|:---------------------:|:-----:|
@@ -266,13 +266,13 @@ A análise por tipo de política revela que repositórios com **Proibição Tota
 
 Projetos COM política de IA apresentam **maior taxa de merge** (+5,66 p.p.), **menor tempo de ciclo de PR** (−3,52 h), **menor tempo de 1ª resposta** tanto em PRs (−1,36 h) quanto em issues (−6,95 h). O único indicador desfavorável é a média de reviews até aprovação, ligeiramente maior (+0,49).
 
-*(Ver: Dashboard, aba **RQ3 — Colaboração** — KPI Cards "Medianas — COM Política vs SEM Política")*
+*(Ver: Dashboard, aba **RQ3 - Colaboração** - KPI Cards "Medianas - COM Política vs SEM Política")*
 
-*(Ver: Dashboard, aba **RQ3 — Colaboração** — gráficos "PR Merge Rate por Tipo de Política" e "Tempo Mediano de Ciclo de PR")*
+*(Ver: Dashboard, aba **RQ3 - Colaboração** - gráficos "PR Merge Rate por Tipo de Política" e "Tempo Mediano de Ciclo de PR")*
 
-*(Ver: Dashboard, aba **RQ3 — Colaboração** — gráficos "1ª Resposta em PRs", "1ª Resposta em Issues" e "Média de Reviews até Aprovação"; e tabela "Medianas por Tipo de Política")*
+*(Ver: Dashboard, aba **RQ3 - Colaboração** - gráficos "1ª Resposta em PRs", "1ª Resposta em Issues" e "Média de Reviews até Aprovação"; e tabela "Medianas por Tipo de Política")*
 
-O padrão de maior eficiência em projetos COM política reforça a interpretação de que esses repositórios possuem processos de contribuição mais estruturados, com mantenedores mais ativos e diretrizes mais claras — dos quais a política de IA é apenas um elemento.
+O padrão de maior eficiência em projetos COM política reforça a interpretação de que esses repositórios possuem processos de contribuição mais estruturados, com mantenedores mais ativos e diretrizes mais claras - dos quais a política de IA é apenas um elemento.
 
 ---
 
@@ -288,22 +288,22 @@ O padrão de maior eficiência em projetos COM política reforça a interpretaç
 
 ### 6.2 Análise das Hipóteses
 
-**RQ1 — A adoção é baixa, mas o tipo dominante surpreende.**
+**RQ1 - A adoção é baixa, mas o tipo dominante surpreende.**
 
-A hipótese de adoção baixa se confirmou — apenas 12,5% dos repositórios têm política explícita. No entanto, esperávamos que o tipo *Disclosure* fosse o mais comum. O resultado mostra que **Uso Assistivo Permitido** domina (51,2% dos casos com política), o que indica que a maioria dos projetos que menciona IA o faz de forma informativa, sem impor obrigações ao contribuidor. A distribuição quase igualitária entre *Disclosure* (24,8%) e *Proibição Total* (24,0%) indica uma polarização: projetos que efetivamente regulam o tema tendem a adotar posições opostas.
+A hipótese de adoção baixa se confirmou - apenas 12,5% dos repositórios têm política explícita. No entanto, esperávamos que o tipo *Disclosure* fosse o mais comum. O resultado mostra que **Uso Assistivo Permitido** domina (51,2% dos casos com política), o que indica que a maioria dos projetos que menciona IA o faz de forma informativa, sem impor obrigações ao contribuidor. A distribuição quase igualitária entre *Disclosure* (24,8%) e *Proibição Total* (24,0%) indica uma polarização: projetos que efetivamente regulam o tema tendem a adotar posições opostas.
 
-**RQ2 — Política está associada a maior engajamento, não menor.**
+**RQ2 - Política está associada a maior engajamento, não menor.**
 
-A hipótese era de que projetos com política seriam mais ativos, o que se confirmou com margem expressiva. O delta de +253 issues abertas em mediana é o resultado mais robusto do estudo. Uma interpretação plausível é que projetos suficientemente grandes para sentir a necessidade de regulamentar o uso de IA são justamente os que já possuem alta demanda de contribuição — a política seria efeito, não causa, da maior atividade.
+A hipótese era de que projetos com política seriam mais ativos, o que se confirmou com margem expressiva. O delta de +253 issues abertas em mediana é o resultado mais robusto do estudo. Uma interpretação plausível é que projetos suficientemente grandes para sentir a necessidade de regulamentar o uso de IA são justamente os que já possuem alta demanda de contribuição - a política seria efeito, não causa, da maior atividade.
 
-**RQ3 — Política está associada a processos mais eficientes.**
+**RQ3 - Política está associada a processos mais eficientes.**
 
-A hipótese se confirmou. Projetos COM política respondem mais rápido (−1,36h em PRs, −6,95h em issues), têm ciclo de PR mais curto e maior taxa de merge. O único indicador contrário — mais reviews até aprovação (+0,49) — pode refletir um processo de revisão mais rigoroso, o que é coerente com projetos que preocupam-se em formalizar diretrizes de contribuição.
+A hipótese se confirmou. Projetos COM política respondem mais rápido (−1,36h em PRs, −6,95h em issues), têm ciclo de PR mais curto e maior taxa de merge. O único indicador contrário - mais reviews até aprovação (+0,49) - pode refletir um processo de revisão mais rigoroso, o que é coerente com projetos que preocupam-se em formalizar diretrizes de contribuição.
 
 ### 6.3 Limitações
 
 - A **detecção de políticas por regex** pode gerar falsos positivos (repositórios que mencionam IA sem intenção regulatória) e falsos negativos (repositórios com políticas implícitas não capturadas pelos termos buscados).
-- A **classificação em tipos** baseia-se em palavras-chave, não em leitura semântica completa — casos borderline podem ser alocados incorretamente.
+- A **classificação em tipos** baseia-se em palavras-chave, não em leitura semântica completa - casos borderline podem ser alocados incorretamente.
 - A **amostragem temporal** das métricas de PR e issues introduz uma margem de erro de até 10% (nível de confiança 95%), adequada para análise exploratória mas insuficiente para inferências causais precisas.
 - Correlação entre presença de política e métricas de engajamento/colaboração **não implica causalidade**: projetos mais maduros tendem tanto a ter política quanto a ter melhores processos, sendo a maturidade a variável de confusão mais provável.
 
@@ -316,10 +316,10 @@ Este estudo investigou a adoção de políticas de uso de IA em contribuições 
 ### Principais Achados
 
 - Apenas **12,5% dos repositórios** possuem política explícita de uso de IA, indicando que o tema ainda está em fase inicial de regulamentação na comunidade open source.
-- Entre os que adotam política, predomina o **Uso Assistivo Permitido** (51,2%), seguido por Exigência de Disclosure (24,8%) e Proibição Total (24,0%) — revelando uma divisão clara entre projetos que permitem e os que restringem o uso de IA.
+- Entre os que adotam política, predomina o **Uso Assistivo Permitido** (51,2%), seguido por Exigência de Disclosure (24,8%) e Proibição Total (24,0%) - revelando uma divisão clara entre projetos que permitem e os que restringem o uso de IA.
 - Repositórios COM política apresentam **maior volume de contribuições** (PRs e issues), sugerindo que são projetos com maior movimento e, por consequência, maior necessidade de governança.
 - Projetos COM política exibem **processos de contribuição mais eficientes**: maior taxa de merge, menor tempo de ciclo de PR e respostas mais rápidas a PRs e issues.
 
 ---
 
-*Maio de 2026 | Laboratório de Experimentação de Software — PUC Minas*
+*Maio de 2026 | Laboratório de Experimentação de Software - PUC Minas*

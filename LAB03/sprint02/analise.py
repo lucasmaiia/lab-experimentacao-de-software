@@ -1,9 +1,9 @@
 """
-Análise estatística do dataset de Pull Requests — Lab03 Sprint 02
+Análise estatística do dataset de Pull Requests - Lab03 Sprint 02
 
 Correlações de Spearman entre métricas de PR e:
-  A) Status do PR (MERGED=1, CLOSED=0) — RQ01–04
-  B) Número de revisões (review_count)   — RQ05–08
+  A) Status do PR (MERGED=1, CLOSED=0) - RQ01–04
+  B) Número de revisões (review_count)   - RQ05–08
 
 Justificativa do teste: Spearman é robusto para distribuições não-normais
 e dados ordinais/assimétricos, que são típicos de métricas de repositórios
@@ -96,7 +96,7 @@ def _print_correlations(df: pd.DataFrame) -> list:
     print("CORRELAÇÕES DE SPEARMAN")
     print("=" * 60)
     for rq, x_cols, y_col, y_label in RQ_GROUPS:
-        print(f"\n{rq} — vs {y_label}")
+        print(f"\n{rq} - vs {y_label}")
         for x in x_cols:
             res = _spearman(df[x], df[y_col], x, y_col)
             sig = "***" if res["p_valor"] < 0.001 else ("**" if res["p_valor"] < 0.01 else ("*" if res["p_valor"] < 0.05 else "n.s."))
@@ -180,7 +180,7 @@ def _plot_correlation_heatmap(results: list) -> None:
     fig, ax = plt.subplots(figsize=(12, 6))
     sns.heatmap(pivot, annot=True, fmt=".3f", cmap="RdBu_r", center=0,
                 linewidths=0.5, ax=ax, vmin=-1, vmax=1)
-    ax.set_title("Coeficientes de Spearman — Lab03 Sprint 02", fontsize=12)
+    ax.set_title("Coeficientes de Spearman - Lab03 Sprint 02", fontsize=12)
     plt.tight_layout()
     path = FIGURES_DIR / "heatmap_correlacoes.png"
     plt.savefig(path, dpi=150)

@@ -42,4 +42,4 @@ A disciplina tem como objetivo aplicar métodos experimentais para análise de d
 
 ## Período
 
-PUC Minas — **2026/1**
+PUC Minas - **2026/1**

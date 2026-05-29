@@ -143,7 +143,7 @@ def main() -> int:
             elapsed = time.time() - start
             print(
                 f"  [{len(rows)}/{TARGET_REPOS}] {name} "
-                f"(★{stars} | PRs={total_prs}) — {elapsed:.0f}s"
+                f"(★{stars} | PRs={total_prs}) - {elapsed:.0f}s"
             )
 
             if len(rows) >= TARGET_REPOS:

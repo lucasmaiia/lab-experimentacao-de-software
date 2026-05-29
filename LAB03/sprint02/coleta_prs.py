@@ -1,5 +1,5 @@
 """
-Coleta de Pull Requests — Sprint 02 (versão otimizada)
+Coleta de Pull Requests - Sprint 02 (versão otimizada)
 
 Melhorias em relação à sprint01:
   - page_size 30 -> 100  (3x menos chamadas à API por repositório)
@@ -34,7 +34,7 @@ OUTPUT_CSV = Path(__file__).resolve().parent / "pull_requests.csv"
 MAX_PRS_PER_REPO = 500
 MIN_REVIEW_COUNT = 1
 MIN_ANALYSIS_HOURS = 1.0
-PAGE_SIZE = 100  # sprint01 usava 30 — 3x menos roundtrips
+PAGE_SIZE = 100  # sprint01 usava 30 - 3x menos roundtrips
 
 CSV_FIELDS = [
     "repo_name", "pr_number", "state",

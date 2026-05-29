@@ -1,6 +1,6 @@
 # Estudo das Características de Qualidade de Sistemas Java
 
-Laboratório de Experimentação de Software — Lab02\
+Laboratório de Experimentação de Software - Lab02\
 **Alunos:** Leandro Pacheco, Lucas Maia\
 **Professor:** Danilo de Quadros Maia Filho
 
@@ -19,22 +19,22 @@ Laboratório de Experimentação de Software — Lab02\
 
 ## 1. Introdução e Hipóteses
 
-Este trabalho investiga as **características de qualidade** de sistemas desenvolvidos em Java, analisando os **1.000 repositórios Java** mais populares do GitHub (por número de estrelas). O objetivo é verificar se existe correlação entre atributos de processo — popularidade, maturidade, atividade e tamanho — e a qualidade interna do código, medida por métricas estruturais extraídas com a ferramenta de análise estática **CK** (Chidamber & Kemerer).
+Este trabalho investiga as **características de qualidade** de sistemas desenvolvidos em Java, analisando os **1.000 repositórios Java** mais populares do GitHub (por número de estrelas). O objetivo é verificar se existe correlação entre atributos de processo - popularidade, maturidade, atividade e tamanho - e a qualidade interna do código, medida por métricas estruturais extraídas com a ferramenta de análise estática **CK** (Chidamber & Kemerer).
 
 A análise foi conduzida em duas sprints. Na **Sprint 01**, desenvolvemos os scripts de coleta via API do GitHub, o processo de clonagem e a execução da ferramenta CK sobre um repositório piloto (`macrozheng/mall`). Na **Sprint 02**, escalamos a análise para toda a base de 1.000 repositórios, extraímos as métricas de qualidade e realizamos a análise estatística.
 
 ### Hipóteses
 
-**H1 — Popularidade implica qualidade?**\
+**H1 - Popularidade implica qualidade?**\
 Repositórios com mais estrelas tendem a ter código com menor acoplamento (CBO baixo) e maior coesão (LCOM baixo), dado que a visibilidade atrai mais scrutínio e contribuições de correção.
 
-**H2 — Maturidade implica qualidade?**\
+**H2 - Maturidade implica qualidade?**\
 Repositórios mais antigos acumulam mais refatorações ao longo dos anos, resultando em métricas de qualidade melhores.
 
-**H3 — Atividade e qualidade estão correlacionadas?**\
+**H3 - Atividade e qualidade estão correlacionadas?**\
 Repositórios com mais releases tendem a ter melhor qualidade, pois ciclos frequentes de entrega incentivam manutenção contínua.
 
-**H4 — Repositórios maiores têm pior qualidade?**\
+**H4 - Repositórios maiores têm pior qualidade?**\
 Conforme o código cresce em linhas de código (LOC), a complexidade estrutural tende a aumentar (CBO e LCOM mais altos), pois fica mais difícil manter a modularidade.
 
 ---
@@ -56,11 +56,11 @@ Conforme o código cresce em linhas de código (LOC), a complexidade estrutural 
 
 Coletamos os **1.000 repositórios Java mais populares** do GitHub via API REST, ordenados por número de estrelas. O script `coleta_repos.py` (Sprint 01) extraiu para cada repositório:
 
-- `stargazers_count` — número de estrelas (popularidade)
-- `age_years` — idade do repositório em anos (maturidade)
-- `releases_count` — total de releases publicados (atividade)
-- `size_kb` — tamanho em KB
-- `clone_url` — URL para clonagem
+- `stargazers_count` - número de estrelas (popularidade)
+- `age_years` - idade do repositório em anos (maturidade)
+- `releases_count` - total de releases publicados (atividade)
+- `size_kb` - tamanho em KB
+- `clone_url` - URL para clonagem
 
 ### 3.2 Métricas de qualidade (CK)
 
@@ -73,7 +73,7 @@ As métricas de qualidade foram extraídas com a **ferramenta CK v0.7.0**, que a
 | **LCOM** | Lack of Cohesion of Methods | Falta de coesão: quanto os métodos de uma classe compartilham atributos. Valores altos sugerem que a classe deveria ser dividida. |
 | **LOC** | Lines of Code | Linhas de código por classe. Usado como métrica de tamanho. |
 
-Para cada repositório, calculamos a **mediana** de cada métrica sobre todas as classes Java analisadas. A mediana foi escolhida ao invés da média por ser resistente a outliers — classes geradas automaticamente (mappers, DTOs) frequentemente distorcem a média.
+Para cada repositório, calculamos a **mediana** de cada métrica sobre todas as classes Java analisadas. A mediana foi escolhida ao invés da média por ser resistente a outliers - classes geradas automaticamente (mappers, DTOs) frequentemente distorcem a média.
 
 ### 3.3 Pipeline de execução em lote
 
@@ -81,7 +81,7 @@ O processamento dos 1.000 repositórios foi realizado pelo script `script_ck_bat
 
 ```
 Para cada repositório:
-  1. git clone --depth 1 (shallow clone — somente último commit)
+  1. git clone --depth 1 (shallow clone - somente último commit)
   2. java -jar ck.jar (análise estática das classes Java)
   3. Extração de CBO, DIT, LCOM, LOC do class.csv gerado
   4. Inclusão no ck_batch_summary.csv consolidado
@@ -96,7 +96,7 @@ Para cada repositório:
 | **3 workers paralelos** (`ThreadPoolExecutor`) | 3 repositórios analisados simultaneamente |
 | **Diretório temporário** (`tempfile.TemporaryDirectory`) | Disco ocupado: ~2-5 GB (vs ~100 GB se clonasse todos antes) |
 | **Retomável** | Progresso salvo incrementalmente; se interrompido, retoma de onde parou |
-| **Timeout por repo** | Clone: 180s, CK: 600s — evita que repos gigantes travem o pipeline |
+| **Timeout por repo** | Clone: 180s, CK: 600s - evita que repos gigantes travem o pipeline |
 
 Com essas otimizações, o processamento dos 1.000 repositórios foi concluído em **1 hora e 17 minutos**, contra uma estimativa inicial de 4 horas para execução serial.
 
@@ -138,7 +138,7 @@ Para cada RQ, calculamos o **coeficiente de correlação de Spearman (ρ)**, que
 
 **Observações iniciais:**
 - O **CBO mediano de 3.0** indica baixo acoplamento típico: cada classe referencia apenas 3 outras em mediana.
-- O **DIT mediano de 1.0** revela hierarquias de herança rasas — a maioria das classes herda diretamente de `Object`.
+- O **DIT mediano de 1.0** revela hierarquias de herança rasas - a maioria das classes herda diretamente de `Object`.
 - O **LCOM mediano de 0.0** sugere boa coesão (métodos que compartilham atributos), mas o desvio altíssimo (7.11) revela outliers extremos.
 - A diferença entre mediana (15.8k) e média (89.6k) do LOC evidencia distribuição fortemente assimétrica.
 
@@ -165,7 +165,7 @@ Para cada RQ, calculamos o **coeficiente de correlação de Spearman (ρ)**, que
 
 ---
 
-### 4.3 RQ01 — Popularidade × Qualidade
+### 4.3 RQ01 - Popularidade × Qualidade
 
 **Resultado:** Correlação **fraca** entre estrelas e CBO (ρ = 0.08) e LCOM (ρ = 0.14). Correlação **moderada** com DIT (ρ = 0.37).
 
@@ -188,7 +188,7 @@ A popularidade não garante qualidade. Repos extremamente populares (Q4) apresen
 
 ---
 
-### 4.4 RQ02 — Maturidade × Qualidade
+### 4.4 RQ02 - Maturidade × Qualidade
 
 **Resultado:** Correlação **fraca** entre idade e CBO (ρ = 0.03). Correlação **substancial** com DIT (ρ = 0.44).
 
@@ -200,7 +200,7 @@ Repositórios mais antigos tendem a ter hierarquias de herança mais profundas (
 
 ---
 
-### 4.5 RQ03 — Atividade × Qualidade
+### 4.5 RQ03 - Atividade × Qualidade
 
 **Resultado:** Correlação **moderada** entre releases e CBO (ρ = 0.30) e DIT (ρ = 0.37).
 
@@ -212,7 +212,7 @@ Repositórios com mais releases tendem a ter acoplamento ligeiramente maior. Uma
 
 ---
 
-### 4.6 RQ04 — Tamanho × Qualidade
+### 4.6 RQ04 - Tamanho × Qualidade
 
 **Resultado:** Correlação **moderada** entre LOC e CBO (ρ = 0.30) e LCOM (ρ = 0.25).
 
@@ -226,17 +226,17 @@ Projetos maiores em linhas de código apresentam acoplamento e falta de coesão 
 
 ## 5. Discussão das Hipóteses
 
-**H1 — Popularidade implica qualidade?**\
+**H1 - Popularidade implica qualidade?**\
 **Refutada.** A correlação entre estrelas e métricas de qualidade é fraca (ρ < 0.15 para CBO e LCOM). Popularidade no GitHub é impulsionada por utilidade, documentação e marketing da comunidade, e não reflete diretamente a qualidade estrutural do código. Repos extremamente populares até apresentam CBO ligeiramente maior (Q4 vs Q1).
 
-**H2 — Maturidade implica qualidade?**\
+**H2 - Maturidade implica qualidade?**\
 **Refutada parcialmente.** A idade não correlaciona com CBO ou LCOM, mas apresenta correlação substancial com DIT (ρ = 0.44). Repos mais antigos possuem hierarquias de herança mais profundas, um padrão arquitetural mais comum no Java antes da adoção de composição sobre herança.
 
-**H3 — Atividade correlaciona com qualidade?**\
+**H3 - Atividade correlaciona com qualidade?**\
 **Confirmada parcialmente.** Correlação moderada (ρ ≈ 0.30) entre releases e CBO/DIT. Porém, a relação é inversa ao esperado: mais releases correlaciona com **mais** acoplamento, não menos. Projetos ativamente mantidos são sistemas funcionalmente complexos, e a complexidade estrutural é uma consequência natural.
 
-**H4 — Repos maiores têm pior qualidade?**\
-**Confirmada parcialmente.** Correlação moderada (ρ = 0.30 para CBO, 0.25 para LCOM). Conforme o código cresce, a modularidade tende a degradar, mas o efeito é moderado — indicando que os mantenedores de projetos populares fazem um trabalho razoável de controlar a complexidade mesmo em bases de código grandes.
+**H4 - Repos maiores têm pior qualidade?**\
+**Confirmada parcialmente.** Correlação moderada (ρ = 0.30 para CBO, 0.25 para LCOM). Conforme o código cresce, a modularidade tende a degradar, mas o efeito é moderado - indicando que os mantenedores de projetos populares fazem um trabalho razoável de controlar a complexidade mesmo em bases de código grandes.
 
 ---
 

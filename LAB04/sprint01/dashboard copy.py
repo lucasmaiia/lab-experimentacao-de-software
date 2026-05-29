@@ -93,7 +93,7 @@ with col_b:
         color="has_policy", color_discrete_map=COLORS,
         barmode="overlay", opacity=0.75,
         labels={"stars": "Número de Stars", "has_policy": "Grupo"},
-        title="Distribuição de Stars — Dataset Completo",
+        title="Distribuição de Stars - Dataset Completo",
     )
     fig_stars.update_layout(**PLOT_LAYOUT)
     st.plotly_chart(fig_stars, width="stretch")
@@ -104,7 +104,7 @@ fig_age = px.histogram(
     color="has_policy", color_discrete_map=COLORS,
     barmode="overlay", opacity=0.75,
     labels={"age_days": "Idade do Repositório (dias)", "has_policy": "Grupo"},
-    title="Distribuição da Idade dos Repositórios — Dataset Completo",
+    title="Distribuição da Idade dos Repositórios - Dataset Completo",
 )
 fig_age.update_layout(**PLOT_LAYOUT)
 st.plotly_chart(fig_age, width="stretch")
@@ -183,7 +183,7 @@ st.dataframe(summary, width="stretch", hide_index=True)
 # ══════════════════════════════════════════════════════════════════════════════
 #  SEÇÃO 3 – DETALHAMENTO DOS REPOS COM POLÍTICA
 # ══════════════════════════════════════════════════════════════════════════════
-st.header("3. Detalhamento — Repositórios COM Política de IA")
+st.header("3. Detalhamento - Repositórios COM Política de IA")
 
 col_d1, col_d2 = st.columns(2)
 

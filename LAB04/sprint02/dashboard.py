@@ -144,9 +144,9 @@ st.divider()
 # ══════════════════════════════════════════════════════════════════════════════
 tab1, tab2, tab3, tab4 = st.tabs([
     "Caracterização do Dataset",
-    "RQ1 — Adoção & Classificação",
-    "RQ2 — Engajamento",
-    "RQ3 — Colaboração",
+    "RQ1 - Adoção & Classificação",
+    "RQ2 - Engajamento",
+    "RQ3 - Colaboração",
 ])
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -189,7 +189,7 @@ with tab1:
             color="has_policy", color_discrete_map=GROUP_COLORS,
             barmode="overlay", opacity=0.75,
             labels={"stars": "Número de Stars", "has_policy": "Grupo"},
-            title="Distribuição de Stars — Dataset Completo",
+            title="Distribuição de Stars - Dataset Completo",
         )
         fig_stars.update_layout(**PLOT_LAYOUT)
         st.plotly_chart(fig_stars, width="stretch")
@@ -205,7 +205,7 @@ with tab1:
     fig_age.update_layout(**PLOT_LAYOUT)
     st.plotly_chart(fig_age, width="stretch")
 
-    st.subheader("Comparativo por Grupo — Características Gerais")
+    st.subheader("Comparativo por Grupo - Características Gerais")
     col1, col2 = st.columns(2)
     with col1:
         st.plotly_chart(box_com_sem("stars",               "Stars por Grupo",              "Stars"),              width="stretch")
@@ -237,7 +237,7 @@ with tab1:
 #  TAB 2 – RQ1: ADOÇÃO & CLASSIFICAÇÃO
 # ══════════════════════════════════════════════════════════════════════════════
 with tab2:
-    st.header("RQ1 — Adoção & Classificação")
+    st.header("RQ1 - Adoção & Classificação")
     st.info(
         "**RQ1:** Qual é o nível de adoção de políticas de uso de IA em repositórios "
         "open-source populares e quais padrões (tipos) de políticas emergem?\n\n"
@@ -375,14 +375,14 @@ with tab2:
     st.plotly_chart(fig_terms, width="stretch")
 
     # Tabela resumo
-    st.subheader("Resumo — Adoção por Tipo")
+    st.subheader("Resumo - Adoção por Tipo")
     st.dataframe(type_counts.rename(columns={"Tipo": "Tipo de Política"}), width="stretch", hide_index=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 #  TAB 3 – RQ2: IMPACTO NO ENGAJAMENTO
 # ══════════════════════════════════════════════════════════════════════════════
 with tab3:
-    st.header("RQ2 — Impacto no Engajamento")
+    st.header("RQ2 - Impacto no Engajamento")
     st.info(
         "**RQ2:** Como a presença e o tipo de política de IA se relacionam com o "
         "**volume de contribuições** e o **nível de engajamento** em projetos open-source?\n\n"
@@ -392,7 +392,7 @@ with tab3:
     st.divider()
 
     # KPIs medianas por grupo (COM vs SEM)
-    st.subheader("Medianas — COM Política vs SEM Política")
+    st.subheader("Medianas - COM Política vs SEM Política")
     k1, k2, k3, k4, k5 = st.columns(5)
     eng_metricas = [
         ("PRs Abertos",           "prs_opened",          k1),
@@ -458,7 +458,7 @@ with tab3:
 #  TAB 4 – RQ3: IMPACTO NA COLABORAÇÃO
 # ══════════════════════════════════════════════════════════════════════════════
 with tab4:
-    st.header("RQ3 — Impacto na Colaboração")
+    st.header("RQ3 - Impacto na Colaboração")
     st.info(
         "**RQ3:** Como a presença e o tipo de política de IA se relacionam com a "
         "**responsividade** e a **eficiência do fluxo de contribuição** nos projetos?\n\n"
@@ -469,7 +469,7 @@ with tab4:
     st.divider()
 
     # KPIs
-    st.subheader("Medianas — COM Política vs SEM Política")
+    st.subheader("Medianas - COM Política vs SEM Política")
     k1, k2, k3, k4, k5 = st.columns(5)
     col_metricas = [
         ("PR Merge Rate (%)",        "prs_merge_rate",                    k1),
@@ -538,5 +538,5 @@ st.divider()
 st.caption(
     "Dados: top 1.000 repositórios do GitHub por estrelas · "
     "Métricas coletadas via GitHub API · "
-    "Laboratório de Experimentação de Software — TIS6"
+    "Laboratório de Experimentação de Software - TIS6"
 )

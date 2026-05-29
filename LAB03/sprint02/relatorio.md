@@ -1,8 +1,8 @@
-# Lab 03 — Code Review em Repositórios Open Source
-## Relatório — Sprint 02
+# Lab 03 - Code Review em Repositórios Open Source
+## Relatório - Sprint 02
 
 **Disciplina:** Laboratório de Experimentação de Software  
-**Curso:** Engenharia de Software — PUC Minas  
+**Curso:** Engenharia de Software - PUC Minas  
 **Autores:** Lucas Maia, Leandro Caldas 
 
 ---
@@ -84,13 +84,13 @@ Dataset final: **50.981 PRs de 191 repositórios** (45.213 MERGED e 5.768 CLOSED
 | `body_char_count` | 802 | 795 | 864 |
 | `participants_count` | 2 | 2 | 3 |
 | `comments_count` | 1 | 1 | 2 |
-| `review_count` | 1 | — | — |
+| `review_count` | 1 | - | - |
 
 PRs MERGED ficam abertos por ~26 horas em mediana, enquanto PRs CLOSED levam ~116 horas (~5 dias). Todos os resultados do teste Mann-Whitney U foram estatisticamente significativos (p < 0,001), indicando que as distribuições de MERGED e CLOSED diferem de forma robusta em todas as métricas.
 
-### 3.2 Dimensão A — Feedback Final (Status do PR)
+### 3.2 Dimensão A - Feedback Final (Status do PR)
 
-#### RQ01 — Tamanho × Status
+#### RQ01 - Tamanho × Status
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
@@ -102,27 +102,27 @@ PRs MERGED ficam abertos por ~26 horas em mediana, enquanto PRs CLOSED levam ~11
 
 ---
 
-#### RQ02 — Tempo de Análise × Status
+#### RQ02 - Tempo de Análise × Status
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
 | `analysis_time_hours` | −0,1650 | < 0,001 | *** |
 
-**Interpretação:** Correlação negativa moderada — alinhada com a hipótese. PRs MERGED têm mediana de ~26 horas; PRs CLOSED têm mediana de ~116 horas (~5 dias). PRs rejeitados ficam abertos por mais tempo, acumulando conflitos ou perdendo relevância. O efeito é real mas mais moderado do que sugeriam os dados preliminares (que incluíam PRs abandonados por anos).
+**Interpretação:** Correlação negativa moderada - alinhada com a hipótese. PRs MERGED têm mediana de ~26 horas; PRs CLOSED têm mediana de ~116 horas (~5 dias). PRs rejeitados ficam abertos por mais tempo, acumulando conflitos ou perdendo relevância. O efeito é real mas mais moderado do que sugeriam os dados preliminares (que incluíam PRs abandonados por anos).
 
 ---
 
-#### RQ03 — Descrição × Status
+#### RQ03 - Descrição × Status
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
 | `body_char_count` | −0,0189 | < 0,001 | *** |
 
-**Interpretação:** Correlação **negativa** fraca — contrária à hipótese. No dataset completo, PRs CLOSED têm descrição mediana ligeiramente maior (864 vs 795 caracteres para MERGED). O efeito é pequeno, mas estatisticamente significativo. Uma possível explicação: autores de PRs que serão rejeitados investem mais texto tentando justificar a contribuição, enquanto PRs bem aceitos muitas vezes são auto-explicativos pelo código.
+**Interpretação:** Correlação **negativa** fraca - contrária à hipótese. No dataset completo, PRs CLOSED têm descrição mediana ligeiramente maior (864 vs 795 caracteres para MERGED). O efeito é pequeno, mas estatisticamente significativo. Uma possível explicação: autores de PRs que serão rejeitados investem mais texto tentando justificar a contribuição, enquanto PRs bem aceitos muitas vezes são auto-explicativos pelo código.
 
 ---
 
-#### RQ04 — Interações × Status
+#### RQ04 - Interações × Status
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
@@ -133,9 +133,9 @@ PRs MERGED ficam abertos por ~26 horas em mediana, enquanto PRs CLOSED levam ~11
 
 ---
 
-### 3.3 Dimensão B — Número de Revisões
+### 3.3 Dimensão B - Número de Revisões
 
-#### RQ05 — Tamanho × Revisões
+#### RQ05 - Tamanho × Revisões
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
@@ -143,38 +143,38 @@ PRs MERGED ficam abertos por ~26 horas em mediana, enquanto PRs CLOSED levam ~11
 | `additions` | +0,3362 | < 0,001 | *** |
 | `deletions` | +0,1678 | < 0,001 | *** |
 
-**Interpretação:** Correlação positiva moderada a forte — alinhada com a hipótese. PRs maiores recebem mais revisões. O efeito é mais pronunciado em linhas adicionadas (ρ = +0,34), o que faz sentido: adicionar código gera mais dúvidas e sugestões do que remover.
+**Interpretação:** Correlação positiva moderada a forte - alinhada com a hipótese. PRs maiores recebem mais revisões. O efeito é mais pronunciado em linhas adicionadas (ρ = +0,34), o que faz sentido: adicionar código gera mais dúvidas e sugestões do que remover.
 
 ---
 
-#### RQ06 — Tempo × Revisões
+#### RQ06 - Tempo × Revisões
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
 | `analysis_time_hours` | +0,1783 | < 0,001 | *** |
 
-**Interpretação:** Correlação positiva fraca — alinhada com a hipótese. PRs com mais revisões ficam abertos por mais tempo, pois cada ciclo de revisão → ajuste → nova revisão consome tempo adicional. O efeito é real mas modesto, sugerindo que outros fatores (complexidade do domínio, disponibilidade dos revisores) também influenciam o tempo.
+**Interpretação:** Correlação positiva fraca - alinhada com a hipótese. PRs com mais revisões ficam abertos por mais tempo, pois cada ciclo de revisão → ajuste → nova revisão consome tempo adicional. O efeito é real mas modesto, sugerindo que outros fatores (complexidade do domínio, disponibilidade dos revisores) também influenciam o tempo.
 
 ---
 
-#### RQ07 — Descrição × Revisões
+#### RQ07 - Descrição × Revisões
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
 | `body_char_count` | +0,1813 | < 0,001 | *** |
 
-**Interpretação:** Correlação positiva fraca a moderada — **contrária à hipótese** (esperávamos negativa ou nula). PRs com descrições mais longas recebem mais revisões. PRs complexos o suficiente para exigir explicação detalhada também são complexos o suficiente para demandar múltiplos ciclos de revisão. A descrição longa não substitui o processo iterativo.
+**Interpretação:** Correlação positiva fraca a moderada - **contrária à hipótese** (esperávamos negativa ou nula). PRs com descrições mais longas recebem mais revisões. PRs complexos o suficiente para exigir explicação detalhada também são complexos o suficiente para demandar múltiplos ciclos de revisão. A descrição longa não substitui o processo iterativo.
 
 ---
 
-#### RQ08 — Interações × Revisões
+#### RQ08 - Interações × Revisões
 
 | Métrica | ρ (Spearman) | p-valor | Significância |
 |---------|:------------:|:-------:|:-------------:|
 | `participants_count` | +0,3779 | < 0,001 | *** |
 | `comments_count` | +0,2673 | < 0,001 | *** |
 
-**Interpretação:** Correlação positiva moderada a forte — alinhada com a hipótese. Mais participantes e comentários co-ocorrem fortemente com mais revisões. São manifestações do mesmo fenômeno: PRs que atraem atenção da comunidade geram mais engajamento em todas as dimensões. Este é o resultado com maior magnitude para a dimensão B.
+**Interpretação:** Correlação positiva moderada a forte - alinhada com a hipótese. Mais participantes e comentários co-ocorrem fortemente com mais revisões. São manifestações do mesmo fenômeno: PRs que atraem atenção da comunidade geram mais engajamento em todas as dimensões. Este é o resultado com maior magnitude para a dimensão B.
 
 ---
 

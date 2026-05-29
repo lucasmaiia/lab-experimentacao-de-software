@@ -1,5 +1,5 @@
 """
-Análise Final — Lab03 Sprint 03
+Análise Final - Lab03 Sprint 03
 Gera visualizações refinadas para o relatório final.
 """
 
@@ -44,7 +44,7 @@ def load_data() -> pd.DataFrame:
 
 
 def figura1_distribuicao(df: pd.DataFrame) -> None:
-    """Figura 1 — Distribuição geral do dataset."""
+    """Figura 1 - Distribuição geral do dataset."""
     fig, axes = plt.subplots(1, 2, figsize=(13, 5))
 
     counts = df["state"].value_counts()
@@ -122,7 +122,7 @@ def _boxplot_grid(df: pd.DataFrame, pairs: list, title: str, path) -> None:
 
 
 def figura2a_tamanho_tempo(df: pd.DataFrame) -> None:
-    """Figura 2a — Tamanho e Tempo (escala log)."""
+    """Figura 2a - Tamanho e Tempo (escala log)."""
     pairs = [
         ("files_changed",       "Arquivos alterados",  "Arquivos (log)"),
         ("additions",           "Linhas adicionadas",  "Linhas (log)"),
@@ -131,13 +131,13 @@ def figura2a_tamanho_tempo(df: pd.DataFrame) -> None:
     ]
     _boxplot_grid(
         df, pairs,
-        title="Figura 2a — Tamanho e Tempo por Status do PR (escala logarítmica)",
+        title="Figura 2a - Tamanho e Tempo por Status do PR (escala logarítmica)",
         path=FIGURES_DIR / "figura2a_tamanho_tempo.png",
     )
 
 
 def figura2b_descricao_interacoes(df: pd.DataFrame) -> None:
-    """Figura 2b — Descrição e Interações (escala log)."""
+    """Figura 2b - Descrição e Interações (escala log)."""
     pairs = [
         ("body_char_count",    "Tamanho da descrição", "Caracteres (log)"),
         ("participants_count", "Participantes",        "Qtd (log)"),
@@ -146,13 +146,13 @@ def figura2b_descricao_interacoes(df: pd.DataFrame) -> None:
     ]
     _boxplot_grid(
         df, pairs,
-        title="Figura 2b — Descrição e Interações por Status do PR (escala logarítmica)",
+        title="Figura 2b - Descrição e Interações por Status do PR (escala logarítmica)",
         path=FIGURES_DIR / "figura2b_descricao_interacoes.png",
     )
 
 
 def figura3_correlacoes_dim_a(df_r: pd.DataFrame) -> None:
-    """Figura 3 — Correlações de Spearman — Dimensão A (status)."""
+    """Figura 3 - Correlações de Spearman - Dimensão A (status)."""
     dim_a = df_r[df_r["vs"] == "merged"].copy()
     dim_a["metrica_label"] = dim_a["metrica"].map(LABEL_MAP).fillna(dim_a["metrica"])
     dim_a = dim_a.sort_values("r_spearman")
@@ -184,7 +184,7 @@ def figura3_correlacoes_dim_a(df_r: pd.DataFrame) -> None:
 
 
 def figura4_correlacoes_dim_b(df_r: pd.DataFrame) -> None:
-    """Figura 4 — Correlações de Spearman — Dimensão B (revisões)."""
+    """Figura 4 - Correlações de Spearman - Dimensão B (revisões)."""
     dim_b = df_r[df_r["vs"] == "review_count"].copy()
     dim_b["metrica_label"] = dim_b["metrica"].map(LABEL_MAP).fillna(dim_b["metrica"])
     dim_b = dim_b.sort_values("r_spearman")
@@ -213,7 +213,7 @@ def figura4_correlacoes_dim_b(df_r: pd.DataFrame) -> None:
 
 
 def figura5_heatmap(df_r: pd.DataFrame) -> None:
-    """Figura 5 — Heatmap de todos os coeficientes de Spearman."""
+    """Figura 5 - Heatmap de todos os coeficientes de Spearman."""
     df_r2 = df_r.copy()
     df_r2["metrica_label"] = df_r2["metrica"].map(LABEL_MAP).fillna(df_r2["metrica"])
     pivot = df_r2.pivot(index="metrica_label", columns="rq", values="r_spearman")
@@ -225,7 +225,7 @@ def figura5_heatmap(df_r: pd.DataFrame) -> None:
         annot_kws={"size": 9},
     )
     ax.set_title(
-        "Coeficientes de Correlação de Spearman — RQ01 a RQ08\n"
+        "Coeficientes de Correlação de Spearman - RQ01 a RQ08\n"
         "(todos os resultados: p < 0,001 ***)",
         fontsize=12, fontweight="bold",
     )
@@ -240,7 +240,7 @@ def figura5_heatmap(df_r: pd.DataFrame) -> None:
 
 def main() -> None:
     print("=" * 60)
-    print("Análise Final — Lab03 Sprint 03")
+    print("Análise Final - Lab03 Sprint 03")
     print("=" * 60)
     df = load_data()
     df_r = pd.read_csv(CORR_CSV)
