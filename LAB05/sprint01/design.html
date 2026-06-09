@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 05 — GraphQL vs REST · Sprint 01</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:14px;color:#1e293b;background:#f1f5f9}
+
+/* ── Nav ── */
+nav{
+  position:fixed;top:0;left:0;right:0;height:48px;
+  background:#0f172a;border-bottom:1px solid #1e293b;
+  display:flex;align-items:center;gap:2px;padding:0 16px;z-index:100;
+  overflow-x:auto;white-space:nowrap;
+}
+nav::-webkit-scrollbar{display:none}
+.nav-btn{
+  border:none;background:transparent;color:#94a3b8;
+  padding:6px 11px;border-radius:6px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .15s;white-space:nowrap;
+}
+.nav-btn:hover{background:#1e293b;color:#e2e8f0}
+.nav-btn.active{background:#2563eb;color:#fff}
+.nav-sep{width:1px;height:18px;background:#1e293b;flex-shrink:0;margin:0 4px}
+
+/* ── Viewport ── */
+#vp{position:fixed;top:48px;left:0;right:0;bottom:0;overflow:hidden}
+
+/* ── Pages ── */
+.page{
+  position:absolute;inset:0;
+  display:none;padding:16px 24px;
+  overflow:hidden;
+}
+.page.active{display:grid}
+
+/* ── Page header strip ── */
+.ph{
+  display:flex;align-items:center;gap:10px;
+  padding-bottom:12px;border-bottom:1px solid #e2e8f0;
+  margin-bottom:12px;
+}
+.ph-badge{
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;
+}
+.ph-title{font-size:16px;font-weight:800;color:#0f172a}
+.ph-sub{font-size:12px;color:#64748b;margin-top:1px}
+
+/* ── Cards ── */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px;overflow:hidden}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:10px}
+
+/* ── Tables ── */
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{background:#f8fafc;padding:8px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#64748b;border-bottom:2px solid #e2e8f0}
+tbody td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:top;line-height:1.5}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
+
+/* ── Pills ── */
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.p-rest{background:#fff7ed;color:#ea580c;border:1px solid #fed7aa}
+.p-gql {background:#fdf4ff;color:#9333ea;border:1px solid #e9d5ff}
+.p-blue{background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe}
+.p-green{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.p-grey{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.p-orange{background:#fff7ed;color:#ea580c;border:1px solid #fed7aa}
+
+code{font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:1px 5px;color:#9333ea}
+
+/* ── Page indicator ── */
+#pi{
+  position:fixed;bottom:12px;right:20px;
+  font-size:11px;font-weight:700;color:#94a3b8;
+  background:#0f172a;padding:4px 10px;border-radius:20px;
+  z-index:200;letter-spacing:.04em;
+}
+
+/* ── Kbd nav hint ── */
+#kh{
+  position:fixed;bottom:12px;left:20px;
+  font-size:11px;color:#64748b;
+  background:#0f172a;padding:4px 10px;border-radius:20px;
+  z-index:200;
+}
+
+/* ======================================================
+   PAGE LAYOUTS
+   ====================================================== */
+
+/* ── 1. Perguntas ── */
+#p-rqs{grid-template-rows:auto 1fr auto;gap:12px}
+.rqs-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;height:100%}
+.rq-card{border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:10px;border:2px solid}
+.rq1c{background:#eff6ff;border-color:#bfdbfe}
+.rq2c{background:#f0fdf4;border-color:#bbf7d0}
+.rq-num{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:800;flex-shrink:0}
+.rq1c .rq-num{background:#2563eb;color:#fff}
+.rq2c .rq-num{background:#16a34a;color:#fff}
+.rq-card h2{font-size:18px;font-weight:800}
+.rq-card p{font-size:14px;color:#334155;line-height:1.6;flex:1}
+.rq-tag{font-size:12px;font-weight:600;padding:4px 12px;border-radius:6px;align-self:flex-start}
+.rq1c .rq-tag{background:#dbeafe;color:#1d4ed8}
+.rq2c .rq-tag{background:#dcfce7;color:#166534}
+.rq-bottom{display:flex;gap:12px}
+.rq-stat{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 14px;flex:1;text-align:center}
+.rq-stat .big{font-size:24px;font-weight:800;color:#2563eb}
+.rq-stat .lbl{font-size:11px;color:#64748b;margin-top:2px}
+
+/* ── 2. Hipóteses ── */
+#p-hip{grid-template-rows:auto 1fr 1fr;gap:12px}
+.hyp-row{display:grid;grid-template-columns:auto 1fr 1fr;gap:12px;align-items:stretch}
+.hyp-rq-label{writing-mode:vertical-lr;transform:rotate(180deg);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;padding:8px 6px;border-radius:8px;text-align:center;white-space:nowrap}
+.rq1-label{background:#dbeafe;color:#1d4ed8}
+.rq2-label{background:#dcfce7;color:#166534}
+.hyp-card{border-radius:10px;padding:16px;border:1px solid;display:flex;flex-direction:column;gap:8px}
+.h0{background:#f8fafc;border-color:#cbd5e1}
+.h1b{background:#eff6ff;border-color:#93c5fd}
+.h1u{background:#f0fdf4;border-color:#86efac}
+.hyp-label-row{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+.h0  .hyp-label-row{color:#64748b}
+.h1b .hyp-label-row{color:#1d4ed8}
+.h1u .hyp-label-row{color:#166534}
+.hyp-dot{width:7px;height:7px;border-radius:50%}
+.h0  .hyp-dot{background:#94a3b8}
+.h1b .hyp-dot{background:#2563eb}
+.h1u .hyp-dot{background:#16a34a}
+.hyp-formula{font-family:"SFMono-Regular",Consolas,monospace;font-size:14px;font-weight:700;padding:9px 12px;border-radius:6px}
+.h0  .hyp-formula{background:#e2e8f0;color:#475569}
+.h1b .hyp-formula{background:#dbeafe;color:#1e40af}
+.h1u .hyp-formula{background:#dcfce7;color:#166534}
+.hyp-card p{font-size:12.5px;color:#475569;line-height:1.55;flex:1}
+.tail-badge{align-self:flex-start;font-size:11px;font-weight:700;padding:3px 9px;border-radius:10px}
+.h1b .tail-badge{background:#dbeafe;color:#1d4ed8}
+.h1u .tail-badge{background:#dcfce7;color:#166534}
+
+/* ── 3. Variáveis ── */
+#p-var{grid-template-rows:auto 1fr;gap:12px}
+.var-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden}
+.var-col{display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.vd-card{border-radius:10px;border:2px solid;padding:14px;flex:1}
+.vd1{background:#eff6ff;border-color:#93c5fd}
+.vd2{background:#fdf4ff;border-color:#d8b4fe}
+.vd-badge{font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;margin-bottom:8px;display:inline-block}
+.vd1 .vd-badge{background:#dbeafe;color:#1d4ed8}
+.vd2 .vd-badge{background:#ede9fe;color:#7c3aed}
+.vd-name{font-size:15px;font-weight:800;margin-bottom:6px}
+.vd-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.06);font-size:13px}
+.vd-row:last-child{border-bottom:none}
+.vd-key{color:#64748b;font-size:12px}
+.vd-val{font-weight:600}
+.vi-cards{display:flex;flex-direction:column;gap:8px;overflow:auto;flex:1}
+.vi-card{border-radius:8px;padding:12px 14px;border:1px solid}
+.vi1{background:#fff7ed;border-color:#fed7aa}
+.vi2{background:#f0fdf4;border-color:#bbf7d0}
+.vi3{background:#fdf4ff;border-color:#e9d5ff}
+.vi-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.vi-num{width:20px;height:20px;border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:800;flex-shrink:0}
+.vi1 .vi-num{background:#ea580c;color:#fff}
+.vi2 .vi-num{background:#16a34a;color:#fff}
+.vi3 .vi-num{background:#9333ea;color:#fff}
+.vi-name{font-size:13px;font-weight:700}
+.vi-levels{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.vi-role{font-size:11.5px;color:#475569;margin-top:4px;line-height:1.4}
+
+/* ── 4. Tratamentos ── */
+#p-trat{grid-template-rows:auto 1fr;gap:12px}
+.trat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden}
+.trat-card{border-radius:10px;border:2px solid;overflow:hidden;display:flex;flex-direction:column}
+.tc-rest{border-color:#fed7aa}
+.tc-gql {border-color:#e9d5ff}
+.trat-header{padding:14px 18px;display:flex;align-items:center;gap:12px}
+.tc-rest .trat-header{background:#fff7ed}
+.tc-gql  .trat-header{background:#fdf4ff}
+.trat-t-badge{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:14px;font-weight:900;flex-shrink:0}
+.tc-rest .trat-t-badge{background:#ea580c;color:#fff}
+.tc-gql  .trat-t-badge{background:#9333ea;color:#fff}
+.trat-t-name{font-size:16px;font-weight:800}
+.tc-rest .trat-t-name{color:#c2410c}
+.tc-gql  .trat-t-name{color:#7e22ce}
+.trat-t-sub{font-size:12px;color:#64748b;margin-top:2px}
+.trat-body{padding:16px 18px;flex:1;display:flex;flex-direction:column;gap:12px}
+.trat-endpoint{font-family:monospace;font-size:12.5px;background:#1e293b;color:#4ade80;padding:10px 14px;border-radius:8px;word-break:break-all;line-height:1.6}
+.method-badge{display:inline-block;padding:1px 7px;border-radius:4px;font-weight:800;margin-right:6px;font-size:11px}
+.mb-rest{background:#ea580c;color:#fff}
+.mb-gql {background:#9333ea;color:#fff}
+.trat-stat{padding:10px 12px;border-radius:8px;font-size:13px}
+.tc-rest .trat-stat{background:#fff7ed;border:1px solid #fed7aa}
+.tc-gql  .trat-stat{background:#fdf4ff;border:1px solid #e9d5ff}
+.trat-stat .big{font-size:28px;font-weight:800;line-height:1}
+.tc-rest .trat-stat .big{color:#ea580c}
+.tc-gql  .trat-stat .big{color:#9333ea}
+.trat-stat .lbl{font-size:11px;color:#64748b;margin-top:3px}
+.trat-props{display:flex;flex-direction:column;gap:6px}
+.trat-prop{display:flex;align-items:flex-start;gap:8px;font-size:12.5px}
+.trat-prop-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* ── 5. Objetos ── */
+#p-obj{grid-template-rows:auto auto 1fr;gap:12px}
+.repos-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.repo-chip{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:7px 10px;display:flex;align-items:center;gap:7px;font-size:12px}
+.repo-n{width:18px;height:18px;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;display:grid;place-items:center;font-size:10px;font-weight:700;color:#64748b;flex-shrink:0}
+.repo-info{min-width:0}
+.repo-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.repo-lang{font-size:10.5px;color:#64748b;display:flex;align-items:center;gap:3px;margin-top:1px}
+.lang-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.qt-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.qt-card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px}
+.qt-name{font-family:monospace;font-size:12.5px;font-weight:700;color:#0f172a;margin-bottom:6px}
+.qt-endpoint{font-size:11px;color:#64748b;font-family:monospace;word-break:break-all;margin-bottom:8px;line-height:1.4}
+.qt-compare{display:flex;gap:6px}
+.qt-fc{text-align:center;flex:1;border-radius:6px;padding:4px}
+.qt-fc.rest-fc{background:#fff7ed;border:1px solid #fed7aa}
+.qt-fc.gql-fc {background:#fdf4ff;border:1px solid #e9d5ff}
+.qt-fc .n{font-size:16px;font-weight:800}
+.rest-fc .n{color:#ea580c}
+.gql-fc  .n{color:#9333ea}
+.qt-fc .l{font-size:10px;color:#64748b}
+
+/* ── 6. Projeto ── */
+#p-proj{grid-template-rows:auto 1fr;gap:12px}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden}
+.flow-steps{display:flex;flex-direction:column;gap:8px}
+.flow-step{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;position:relative}
+.flow-step:not(:last-child)::after{content:"↓";position:absolute;bottom:-14px;left:20px;color:#94a3b8;font-size:13px}
+.fs-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:16px;flex-shrink:0}
+.fs-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.fs-desc{font-size:11.5px;color:#64748b;line-height:1.4}
+.proj-props{display:flex;flex-direction:column;gap:8px}
+.pp{border-radius:8px;padding:12px 14px;border:1px solid}
+.pp-title{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.pp-body{font-size:12px;color:#475569;line-height:1.5}
+.pp-check{width:16px;height:16px;border-radius:4px;display:grid;place-items:center;font-size:9px;color:#fff;font-weight:800;flex-shrink:0}
+
+/* ── 7. Medições ── */
+#p-med{grid-template-rows:auto auto 1fr;gap:12px}
+.med-calc{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:16px;background:#fff;border:1px solid #e2e8f0;border-radius:10px}
+.mc-b{text-align:center}
+.mc-b .big{font-size:32px;font-weight:900;line-height:1;color:#2563eb}
+.mc-b .lbl{font-size:10px;color:#64748b;margin-top:3px}
+.mc-op{font-size:24px;color:#cbd5e1;font-weight:300;margin-top:-8px}
+.mc-res{background:#2563eb;color:#fff;border-radius:10px;padding:14px 22px;text-align:center}
+.mc-res .big{font-size:38px;font-weight:900;line-height:1}
+.mc-res .lbl{font-size:11px;opacity:.8;margin-top:3px}
+
+/* ── 8. Ameaças ── */
+#p-ame{grid-template-rows:auto auto 1fr;gap:12px}
+.threat-tabs{display:flex;gap:6px}
+.threat-tab{border:1px solid #e2e8f0;background:#fff;padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;color:#64748b;transition:all .15s}
+.threat-tab:hover{border-color:#2563eb;color:#2563eb}
+.threat-tab.active{background:#2563eb;border-color:#2563eb;color:#fff}
+.threat-panel{display:none;overflow-y:auto;height:100%}
+.threat-panel.active{display:block}
+.threat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-bottom:8px}
+.threat-item{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.threat-name{font-size:12.5px;font-weight:700;color:#0f172a}
+.threat-desc{font-size:12px;color:#475569;line-height:1.5;flex:1}
+.threat-ctrl{font-size:11.5px;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:5px 8px;line-height:1.4}
+.threat-ctrl::before{content:"✓ Controle: "}
+.threat-item.no-ctrl .threat-ctrl{display:none}
+
+/* ── 9. Cenário ── */
+#p-cen{grid-template-rows:auto 1fr;gap:12px}
+.cen-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden}
+.terminal{background:#0d1117;border-radius:10px;padding:16px;font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;line-height:1.8;color:#e2e8f0;overflow-y:auto;height:100%}
+.t-g{color:#4ade80}.t-y{color:#fbbf24}.t-b{color:#60a5fa}.t-p{color:#a78bfa}.t-m{color:#f472b6}.t-dim{color:#374151}
+.files-list{display:flex;flex-direction:column;gap:8px;overflow-y:auto;height:100%}
+.file-item{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px}
+.file-name{font-family:monospace;font-size:12.5px;font-weight:700;color:#2563eb;margin-bottom:4px}
+.file-role{font-size:11.5px;color:#475569;line-height:1.4}
+
+/* ── 10. Queries ── */
+#p-qry{grid-template-rows:auto auto 1fr;gap:12px}
+.qry-tabs{display:flex;gap:0;border-bottom:2px solid #e2e8f0}
+.qry-tab{padding:7px 18px;font-size:12.5px;font-weight:700;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:#64748b;transition:all .15s}
+.qry-tab:hover{color:#0f172a}
+.qry-tab.active{color:#2563eb;border-bottom-color:#2563eb}
+.qry-panel{display:none;height:100%;overflow:hidden}
+.qry-panel.active{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.code-side{border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.cs-rest{border:2px solid #fed7aa}
+.cs-gql {border:2px solid #e9d5ff}
+.cs-header{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:.04em;flex-shrink:0}
+.cs-rest .cs-header{background:#7c2d12;color:#fed7aa}
+.cs-gql  .cs-header{background:#581c87;color:#e9d5ff}
+.cs-fc{font-size:11px;padding:2px 7px;border-radius:8px}
+.cs-rest .cs-fc{background:#9a3412;color:#fed7aa}
+.cs-gql  .cs-fc{background:#4a1d96;color:#e9d5ff}
+.code-body{background:#0d1117;padding:14px;font-family:"SFMono-Regular",Consolas,monospace;font-size:12px;line-height:1.7;color:#e2e8f0;overflow-y:auto;flex:1}
+.ck{color:#f472b6}.cf{color:#93c5fd}.ct{color:#a5b4fc}.cs{color:#86efac}.co{color:#fb923c}.cc{color:#4b5563;font-style:italic}
+.cu{color:#4ade80}.cx{color:#374151;text-decoration:line-through}
+.curl{color:#4ade80}.cparam{color:#fbbf24}
+
+/* ── 11. Execução ── */
+#p-exe{grid-template-rows:auto 1fr;gap:12px}
+.exe-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden}
+.steps{display:flex;flex-direction:column;gap:8px;overflow-y:auto;height:100%}
+.step{display:flex;gap:10px}
+.step-n{width:26px;height:26px;background:#2563eb;color:#fff;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;flex-shrink:0;margin-top:2px}
+.step-body h4{font-size:13px;font-weight:700;margin-bottom:4px}
+.step-body p{font-size:12px;color:#475569;margin-bottom:6px;line-height:1.5}
+.cmd{display:block;font-family:monospace;font-size:11.5px;background:#1e293b;color:#4ade80;padding:8px 12px;border-radius:7px;white-space:pre;overflow-x:auto}
+.csv-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;overflow-y:auto;height:100%;align-content:start}
+.csv-col{background:#fff;border:1px solid #e2e8f0;border-radius:7px;padding:9px 11px}
+.csv-n{font-family:monospace;font-size:12px;font-weight:700;color:#2563eb}
+.csv-t{font-size:10.5px;color:#64748b;margin:2px 0}
+.csv-d{font-size:11.5px;color:#334155;line-height:1.4}
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav id="main-nav">
+  <button class="nav-btn active" onclick="go(0)">Perguntas</button>
+  <span class="nav-sep"></span>
+  <button class="nav-btn" onclick="go(1)">A · Hipóteses</button>
+  <button class="nav-btn" onclick="go(2)">B·C · Variáveis</button>
+  <button class="nav-btn" onclick="go(3)">D · Tratamentos</button>
+  <button class="nav-btn" onclick="go(4)">E · Objetos</button>
+  <button class="nav-btn" onclick="go(5)">F · Projeto</button>
+  <button class="nav-btn" onclick="go(6)">G · Medições</button>
+  <button class="nav-btn" onclick="go(7)">H · Ameaças</button>
+  <span class="nav-sep"></span>
+  <button class="nav-btn" onclick="go(8)">Cenário</button>
+  <button class="nav-btn" onclick="go(9)">Queries</button>
+  <button class="nav-btn" onclick="go(10)">Execução</button>
+</nav>
+
+<div id="vp">
+
+<!-- ══════════════════════════════════════
+     PAGE 0 — PERGUNTAS DE PESQUISA
+     ══════════════════════════════════════ -->
+<div class="page active" id="p-rqs">
+  <div class="ph">
+    <span class="ph-badge" style="background:#dbeafe;color:#1e40af">Lab 05 · Sprint 01</span>
+    <div>
+      <div class="ph-title">GraphQL vs REST — Um Experimento Controlado</div>
+      <div class="ph-sub">PUC Minas · Laboratório de Experimentação de Software · Junho 2026</div>
+    </div>
+  </div>
+
+  <div class="rqs-grid">
+    <div class="rq-card rq1c">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rq-num">RQ1</div>
+        <span class="pill p-blue" style="font-size:12px">Tempo de Resposta</span>
+      </div>
+      <h2 style="color:#1e40af">Respostas às consultas GraphQL são <em>mais rápidas</em> que respostas REST?</h2>
+      <p>Compara o tempo entre o envio da requisição e o recebimento completo da resposta para os dois paradigmas de API.</p>
+      <div class="rq-tag">Hipótese bicaudal — efeito sobre tempo não é trivialmente previsível</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto">
+        <div class="rq-stat"><div class="big">4.800</div><div class="lbl">medições totais</div></div>
+        <div class="rq-stat"><div class="big">30</div><div class="lbl">reps por par</div></div>
+      </div>
+    </div>
+
+    <div class="rq-card rq2c">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="rq-num">RQ2</div>
+        <span class="pill p-green" style="font-size:12px">Tamanho da Resposta</span>
+      </div>
+      <h2 style="color:#166534">Respostas às consultas GraphQL têm <em>tamanho menor</em> que respostas REST?</h2>
+      <p>Compara o tamanho em bytes do corpo da resposta HTTP — GraphQL permite selecionar apenas os campos necessários, eliminando o <em>over-fetching</em> estrutural do REST.</p>
+      <div class="rq-tag">Hipótese unicaudal (menor) — over-fetching é estrutural no REST</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:auto">
+        <div class="rq-stat"><div class="big">20</div><div class="lbl">repositórios</div></div>
+        <div class="rq-stat"><div class="big">4</div><div class="lbl">tipos de query</div></div>
+        <div class="rq-stat"><div class="big" style="color:#ea580c">~45min</div><div class="lbl">coleta total</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+    <div class="card" style="padding:12px 14px">
+      <div class="card-title">Plataforma</div>
+      <div style="font-size:13px;line-height:1.5;color:#334155">API pública do <strong>GitHub</strong> — único grande provedor com REST v3 e GraphQL v4 sobre os <em>mesmos dados</em>, garantindo comparabilidade direta.</div>
+    </div>
+    <div class="card" style="padding:12px 14px">
+      <div class="card-title">Projeto Experimental</div>
+      <div style="font-size:13px;line-height:1.5;color:#334155"><strong>Within-subjects</strong> pareado: mesmos objetos, dois tratamentos, randomização da ordem, warm-up descartado.</div>
+    </div>
+    <div class="card" style="padding:12px 14px">
+      <div class="card-title">Análise Estatística</div>
+      <div style="font-size:13px;line-height:1.5;color:#334155"><strong>Teste de Wilcoxon</strong> pareado (não-paramétrico). Mediana como medida de tendência central. Correção de Bonferroni para múltiplos testes.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 1 — HIPÓTESES
+     ══════════════════════════════════════ -->
+<div class="page" id="p-hip">
+  <div class="ph">
+    <span class="ph-badge" style="background:#ede9fe;color:#5b21b6">A</span>
+    <div>
+      <div class="ph-title">Hipóteses Nula e Alternativa</div>
+      <div class="ph-sub">Um par de hipóteses para cada pergunta de pesquisa</div>
+    </div>
+  </div>
+
+  <div class="hyp-row">
+    <div class="hyp-rq-label rq1-label">RQ1 · Tempo</div>
+    <div class="hyp-card h0">
+      <div class="hyp-label-row"><div class="hyp-dot"></div>Hipótese Nula H₀¹</div>
+      <div class="hyp-formula">mediana(T<sub>GraphQL</sub>) = mediana(T<sub>REST</sub>)</div>
+      <p>Não há diferença no tempo de resposta mediano entre GraphQL e REST. A adoção de um ou outro paradigma não impacta a velocidade das consultas.</p>
+    </div>
+    <div class="hyp-card h1b">
+      <div class="hyp-label-row"><div class="hyp-dot"></div>Hipótese Alternativa H₁¹</div>
+      <div class="hyp-formula">mediana(T<sub>GraphQL</sub>) ≠ mediana(T<sub>REST</sub>)</div>
+      <p>Há diferença no tempo de resposta. O efeito não é trivialmente previsível: GraphQL retorna menos dados (↓ transferência) mas exige parsing de query no servidor (↑ overhead) — justificando hipótese <strong>bicaudal</strong>.</p>
+      <span class="tail-badge">Bicaudal · α = 0,05</span>
+    </div>
+  </div>
+
+  <div class="hyp-row">
+    <div class="hyp-rq-label rq2-label">RQ2 · Tamanho</div>
+    <div class="hyp-card h0">
+      <div class="hyp-label-row"><div class="hyp-dot"></div>Hipótese Nula H₀²</div>
+      <div class="hyp-formula">mediana(S<sub>GraphQL</sub>) = mediana(S<sub>REST</sub>)</div>
+      <p>Não há diferença no tamanho mediano das respostas. Ambas as APIs retornam volumes equivalentes de dados para consultas semanticamente iguais.</p>
+    </div>
+    <div class="hyp-card h1u">
+      <div class="hyp-label-row"><div class="hyp-dot"></div>Hipótese Alternativa H₁²</div>
+      <div class="hyp-formula">mediana(S<sub>GraphQL</sub>) &lt; mediana(S<sub>REST</sub>)</div>
+      <p>GraphQL retorna respostas menores porque permite selecionar exatamente os campos desejados, eliminando o <em>over-fetching</em> estrutural do REST — que retorna objetos completos (40–60 campos) independente do que o cliente precisa. Hipótese <strong>unicaudal</strong>.</p>
+      <span class="tail-badge">Unicaudal (menor) · α = 0,05</span>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 2 — VARIÁVEIS (B + C)
+     ══════════════════════════════════════ -->
+<div class="page" id="p-var">
+  <div class="ph">
+    <span class="ph-badge" style="background:#ede9fe;color:#5b21b6">B · C</span>
+    <div>
+      <div class="ph-title">Variáveis Dependentes e Independentes</div>
+      <div class="ph-sub">O que é medido e o que é manipulado/controlado no experimento</div>
+    </div>
+  </div>
+
+  <div class="var-grid">
+    <!-- B — Dependentes -->
+    <div class="var-col">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;padding-bottom:6px;border-bottom:2px solid #e2e8f0">B · Variáveis Dependentes — o que será medido</div>
+      <div class="vd-card vd1">
+        <span class="vd-badge">VD1</span>
+        <div class="vd-name">Tempo de Resposta</div>
+        <div class="vd-row"><span class="vd-key">Tipo</span><span class="vd-val">Contínua, razão</span></div>
+        <div class="vd-row"><span class="vd-key">Unidade</span><span class="vd-val">Segundos (s)</span></div>
+        <div class="vd-row"><span class="vd-key">Como medir</span><span class="vd-val"><code>time.perf_counter()</code></span></div>
+        <div class="vd-row"><span class="vd-key">Ponto inicial</span><span class="vd-val">Antes de enviar a requisição</span></div>
+        <div class="vd-row"><span class="vd-key">Ponto final</span><span class="vd-val">Após receber o corpo completo</span></div>
+        <div style="font-size:12px;color:#475569;margin-top:8px;line-height:1.5">Captura latência de rede + tempo de processamento no servidor + tempo de transferência do payload.</div>
+      </div>
+      <div class="vd-card vd2">
+        <span class="vd-badge">VD2</span>
+        <div class="vd-name">Tamanho da Resposta</div>
+        <div class="vd-row"><span class="vd-key">Tipo</span><span class="vd-val">Contínua, razão</span></div>
+        <div class="vd-row"><span class="vd-key">Unidade</span><span class="vd-val">Bytes (B)</span></div>
+        <div class="vd-row"><span class="vd-key">Como medir</span><span class="vd-val"><code>len(response.content)</code></span></div>
+        <div class="vd-row"><span class="vd-key">O que representa</span><span class="vd-val">Corpo bruto da resposta</span></div>
+        <div style="font-size:12px;color:#475569;margin-top:8px;line-height:1.5">Medido antes de descompressão pelo cliente — representa o dado semanticamente transferido. Ameaça: gzip pode reduzir diferenças.</div>
+      </div>
+    </div>
+
+    <!-- C — Independentes -->
+    <div class="var-col">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;padding-bottom:6px;border-bottom:2px solid #e2e8f0">C · Variáveis Independentes — o que é manipulado ou controlado</div>
+      <div class="vi-cards">
+        <div class="vi-card vi1">
+          <div class="vi-header">
+            <div class="vi-num">1</div>
+            <div style="font-size:13px;font-weight:700">Tipo de API</div>
+            <span class="pill p-grey" style="margin-left:auto;font-size:10px">Fator principal</span>
+          </div>
+          <div class="vi-levels">
+            <span class="pill p-rest">REST · GitHub v3</span>
+            <span class="pill p-gql">GraphQL · GitHub v4</span>
+          </div>
+          <div class="vi-role">Variável manipulada pelo experimento — cada observação é classificada como REST ou GraphQL.</div>
+        </div>
+        <div class="vi-card vi2">
+          <div class="vi-header">
+            <div class="vi-num">2</div>
+            <div style="font-size:13px;font-weight:700">Tipo de Consulta</div>
+            <span class="pill p-grey" style="margin-left:auto;font-size:10px">Fator de bloco</span>
+          </div>
+          <div class="vi-levels">
+            <span class="pill p-grey">repo_info</span>
+            <span class="pill p-grey">issues</span>
+            <span class="pill p-grey">pull_requests</span>
+            <span class="pill p-grey">commits</span>
+          </div>
+          <div class="vi-role">Permite análise segmentada por tipo. Evita que complexidade diferente entre queries confunda a comparação REST vs GraphQL.</div>
+        </div>
+        <div class="vi-card vi3">
+          <div class="vi-header">
+            <div class="vi-num">3</div>
+            <div style="font-size:13px;font-weight:700">Repositório Alvo</div>
+            <span class="pill p-grey" style="margin-left:auto;font-size:10px">Fator de bloco</span>
+          </div>
+          <div class="vi-levels">
+            <span class="pill p-grey">20 repos populares</span>
+            <span class="pill p-grey">diversificados por linguagem</span>
+          </div>
+          <div class="vi-role">O design within-subjects elimina a variância entre repositórios da comparação principal — cada repo é testado com ambas as APIs, tornando-se seu próprio controle.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 3 — TRATAMENTOS
+     ══════════════════════════════════════ -->
+<div class="page" id="p-trat">
+  <div class="ph">
+    <span class="ph-badge" style="background:#ede9fe;color:#5b21b6">D</span>
+    <div>
+      <div class="ph-title">Tratamentos</div>
+      <div class="ph-sub">Dois tratamentos aplicados sobre os mesmos objetos experimentais</div>
+    </div>
+  </div>
+
+  <div class="trat-grid">
+    <div class="trat-card tc-rest">
+      <div class="trat-header">
+        <div class="trat-t-badge">T₁</div>
+        <div>
+          <div class="trat-t-name">REST · GitHub API v3</div>
+          <div class="trat-t-sub">Abordagem por endpoints pré-definidos</div>
+        </div>
+      </div>
+      <div class="trat-body">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:6px">Endpoint</div>
+          <div class="trat-endpoint">
+            <span class="method-badge mb-rest">GET</span>https://api.github.com/<span style="color:#fbbf24">{endpoint}</span>
+          </div>
+        </div>
+        <div class="trat-stat" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div class="big">~40–60</div><div class="lbl">campos retornados por objeto</div></div>
+          <div><div class="big" style="color:#ea580c;font-size:28px;font-weight:800">3–5 KB</div><div class="lbl">tamanho típico (repo_info)</div></div>
+        </div>
+        <div class="trat-props">
+          <div class="trat-prop"><span class="trat-prop-icon">📦</span><span style="font-size:13px;color:#334155"><strong>Over-fetching:</strong> a API retorna todos os campos do objeto, independentemente do que o cliente precisa</span></div>
+          <div class="trat-prop"><span class="trat-prop-icon">🔗</span><span style="font-size:13px;color:#334155"><strong>Recursos via URL:</strong> cada recurso tem um endpoint dedicado; sub-recursos exigem requisições adicionais</span></div>
+          <div class="trat-prop"><span class="trat-prop-icon">✓</span><span style="font-size:13px;color:#334155"><strong>Simples e familiar:</strong> método HTTP GET semântico, amplamente suportado por proxies e CDNs</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trat-card tc-gql">
+      <div class="trat-header">
+        <div class="trat-t-badge">T₂</div>
+        <div>
+          <div class="trat-t-name">GraphQL · GitHub API v4</div>
+          <div class="trat-t-sub">Linguagem de consulta declarativa sobre grafo de dados</div>
+        </div>
+      </div>
+      <div class="trat-body">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:6px">Endpoint único</div>
+          <div class="trat-endpoint">
+            <span class="method-badge mb-gql">POST</span>https://api.github.com/<span style="color:#fbbf24">graphql</span>
+          </div>
+        </div>
+        <div class="trat-stat" style="background:#fdf4ff;border:1px solid #e9d5ff;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div><div class="big">~8–13</div><div class="lbl">campos retornados por objeto</div></div>
+          <div><div class="big" style="color:#9333ea;font-size:28px;font-weight:800">500–800 B</div><div class="lbl">tamanho típico (repo_info)</div></div>
+        </div>
+        <div class="trat-props">
+          <div class="trat-prop"><span class="trat-prop-icon">🎯</span><span style="font-size:13px;color:#334155"><strong>Seleção precisa:</strong> a query especifica exatamente quais campos retornar — apenas o que o cliente usa</span></div>
+          <div class="trat-prop"><span class="trat-prop-icon">🔀</span><span style="font-size:13px;color:#334155"><strong>Endpoint único:</strong> todos os tipos de consulta usam <code>POST /graphql</code> com query no corpo</span></div>
+          <div class="trat-prop"><span class="trat-prop-icon">⚠</span><span style="font-size:13px;color:#334155"><strong>Overhead de parsing:</strong> o servidor precisa compilar e validar a query GraphQL antes de executar</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 4 — OBJETOS EXPERIMENTAIS
+     ══════════════════════════════════════ -->
+<div class="page" id="p-obj">
+  <div class="ph">
+    <span class="ph-badge" style="background:#ede9fe;color:#5b21b6">E</span>
+    <div>
+      <div class="ph-title">Objetos Experimentais</div>
+      <div class="ph-sub">20 repositórios populares × 4 tipos de consulta = 80 pares experimentais</div>
+    </div>
+  </div>
+
+  <div class="repos-grid">
+    <div class="repo-chip"><div class="repo-n">1</div><div class="repo-info"><div class="repo-name">facebook/react</div><div class="repo-lang"><span class="lang-dot" style="background:#f7df1e"></span>JavaScript</div></div></div>
+    <div class="repo-chip"><div class="repo-n">2</div><div class="repo-info"><div class="repo-name">vuejs/vue</div><div class="repo-lang"><span class="lang-dot" style="background:#f7df1e"></span>JavaScript</div></div></div>
+    <div class="repo-chip"><div class="repo-n">3</div><div class="repo-info"><div class="repo-name">angular/angular</div><div class="repo-lang"><span class="lang-dot" style="background:#3178c6"></span>TypeScript</div></div></div>
+    <div class="repo-chip"><div class="repo-n">4</div><div class="repo-info"><div class="repo-name">tensorflow/tensorflow</div><div class="repo-lang"><span class="lang-dot" style="background:#3572a5"></span>Python</div></div></div>
+    <div class="repo-chip"><div class="repo-n">5</div><div class="repo-info"><div class="repo-name">microsoft/vscode</div><div class="repo-lang"><span class="lang-dot" style="background:#3178c6"></span>TypeScript</div></div></div>
+    <div class="repo-chip"><div class="repo-n">6</div><div class="repo-info"><div class="repo-name">flutter/flutter</div><div class="repo-lang"><span class="lang-dot" style="background:#00b4ab"></span>Dart</div></div></div>
+    <div class="repo-chip"><div class="repo-n">7</div><div class="repo-info"><div class="repo-name">kubernetes/kubernetes</div><div class="repo-lang"><span class="lang-dot" style="background:#00add8"></span>Go</div></div></div>
+    <div class="repo-chip"><div class="repo-n">8</div><div class="repo-info"><div class="repo-name">golang/go</div><div class="repo-lang"><span class="lang-dot" style="background:#00add8"></span>Go</div></div></div>
+    <div class="repo-chip"><div class="repo-n">9</div><div class="repo-info"><div class="repo-name">django/django</div><div class="repo-lang"><span class="lang-dot" style="background:#3572a5"></span>Python</div></div></div>
+    <div class="repo-chip"><div class="repo-n">10</div><div class="repo-info"><div class="repo-name">rails/rails</div><div class="repo-lang"><span class="lang-dot" style="background:#701516"></span>Ruby</div></div></div>
+    <div class="repo-chip"><div class="repo-n">11</div><div class="repo-info"><div class="repo-name">nodejs/node</div><div class="repo-lang"><span class="lang-dot" style="background:#f7df1e"></span>JavaScript</div></div></div>
+    <div class="repo-chip"><div class="repo-n">12</div><div class="repo-info"><div class="repo-name">rust-lang/rust</div><div class="repo-lang"><span class="lang-dot" style="background:#dea584"></span>Rust</div></div></div>
+    <div class="repo-chip"><div class="repo-n">13</div><div class="repo-info"><div class="repo-name">expressjs/express</div><div class="repo-lang"><span class="lang-dot" style="background:#f7df1e"></span>JavaScript</div></div></div>
+    <div class="repo-chip"><div class="repo-n">14</div><div class="repo-info"><div class="repo-name">pallets/flask</div><div class="repo-lang"><span class="lang-dot" style="background:#3572a5"></span>Python</div></div></div>
+    <div class="repo-chip"><div class="repo-n">15</div><div class="repo-info"><div class="repo-name">tiangolo/fastapi</div><div class="repo-lang"><span class="lang-dot" style="background:#3572a5"></span>Python</div></div></div>
+    <div class="repo-chip"><div class="repo-n">16</div><div class="repo-info"><div class="repo-name">spring-projects/spring-boot</div><div class="repo-lang"><span class="lang-dot" style="background:#b07219"></span>Java</div></div></div>
+    <div class="repo-chip"><div class="repo-n">17</div><div class="repo-info"><div class="repo-name">laravel/laravel</div><div class="repo-lang"><span class="lang-dot" style="background:#4f5d95"></span>PHP</div></div></div>
+    <div class="repo-chip"><div class="repo-n">18</div><div class="repo-info"><div class="repo-name">pytorch/pytorch</div><div class="repo-lang"><span class="lang-dot" style="background:#3572a5"></span>Python</div></div></div>
+    <div class="repo-chip"><div class="repo-n">19</div><div class="repo-info"><div class="repo-name">scikit-learn/scikit-learn</div><div class="repo-lang"><span class="lang-dot" style="background:#3572a5"></span>Python</div></div></div>
+    <div class="repo-chip"><div class="repo-n">20</div><div class="repo-info"><div class="repo-name">hashicorp/terraform</div><div class="repo-lang"><span class="lang-dot" style="background:#00add8"></span>Go</div></div></div>
+  </div>
+
+  <div class="qt-grid">
+    <div class="qt-card">
+      <div class="qt-name">repo_info</div>
+      <div class="qt-endpoint">GET /repos/{owner}/{repo}</div>
+      <div class="qt-compare">
+        <div class="qt-fc rest-fc"><div class="n">~60</div><div class="l">campos REST</div></div>
+        <div class="qt-fc gql-fc"><div class="n">13</div><div class="l">campos GQL</div></div>
+      </div>
+    </div>
+    <div class="qt-card">
+      <div class="qt-name">issues</div>
+      <div class="qt-endpoint">GET /repos/{owner}/{repo}/issues?per_page=20</div>
+      <div class="qt-compare">
+        <div class="qt-fc rest-fc"><div class="n">~35</div><div class="l">campos/item REST</div></div>
+        <div class="qt-fc gql-fc"><div class="n">8</div><div class="l">campos/item GQL</div></div>
+      </div>
+    </div>
+    <div class="qt-card">
+      <div class="qt-name">pull_requests</div>
+      <div class="qt-endpoint">GET /repos/{owner}/{repo}/pulls?per_page=20</div>
+      <div class="qt-compare">
+        <div class="qt-fc rest-fc"><div class="n">~40</div><div class="l">campos/item REST</div></div>
+        <div class="qt-fc gql-fc"><div class="n">8</div><div class="l">campos/item GQL</div></div>
+      </div>
+    </div>
+    <div class="qt-card">
+      <div class="qt-name">commits</div>
+      <div class="qt-endpoint">GET /repos/{owner}/{repo}/commits?per_page=20</div>
+      <div class="qt-compare">
+        <div class="qt-fc rest-fc"><div class="n">~20</div><div class="l">campos/item REST</div></div>
+        <div class="qt-fc gql-fc"><div class="n">6</div><div class="l">campos/item GQL</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 5 — PROJETO EXPERIMENTAL
+     ══════════════════════════════════════ -->
+<div class="page" id="p-proj">
+  <div class="ph">
+    <span class="ph-badge" style="background:#ede9fe;color:#5b21b6">F</span>
+    <div>
+      <div class="ph-title">Tipo de Projeto Experimental</div>
+      <div class="ph-sub">Within-subjects com comparação pareada e randomização da ordem de tratamento</div>
+    </div>
+  </div>
+
+  <div class="proj-grid">
+    <div style="display:flex;flex-direction:column;gap:8px;overflow:hidden">
+      <div class="card-title">Fluxo de execução por par (repositório × tipo de consulta)</div>
+      <div class="flow-steps">
+        <div class="flow-step"><div class="fs-icon" style="background:#dbeafe">🗂</div><div><div class="fs-title">Selecionar par (repo, query_type)</div><div class="fs-desc">80 pares no total: 20 repos × 4 tipos de consulta</div></div></div>
+        <div class="flow-step"><div class="fs-icon" style="background:#fef9c3">🔥</div><div><div class="fs-title">Warm-up — 2 execuções descartadas</div><div class="fs-desc">Elimina cold-start de conexão TCP e JIT do servidor GitHub</div></div></div>
+        <div class="flow-step"><div class="fs-icon" style="background:#dcfce7">🎲</div><div><div class="fs-title">Sortear ordem para cada repetição</div><div class="fs-desc">50% de chance: REST→GraphQL ou GraphQL→REST — controla viés de ordenação</div></div></div>
+        <div class="flow-step"><div class="fs-icon" style="background:#ede9fe">⏱</div><div><div class="fs-title">30 medições pareadas (time + size)</div><div class="fs-desc">Cada repetição gera 1 par (REST_time, GQL_time) e (REST_size, GQL_size)</div></div></div>
+        <div class="flow-step" style="margin-bottom:0"><div class="fs-icon" style="background:#fce7f3">📊</div><div><div class="fs-title">Teste de Wilcoxon pareado</div><div class="fs-desc">Não paramétrico — não assume normalidade dos tempos de resposta</div></div></div>
+      </div>
+    </div>
+
+    <div class="proj-props">
+      <div class="pp" style="background:#f0fdf4;border-color:#bbf7d0">
+        <div class="pp-title"><div class="pp-check" style="background:#16a34a">✓</div>Within-subjects (medidas repetidas)</div>
+        <div class="pp-body">Os mesmos 20 repositórios são submetidos a ambos os tratamentos (REST e GraphQL). Isso elimina a variância entre repositórios da comparação — cada repo é seu próprio controle, aumentando o poder estatístico sem aumentar o número de objetos.</div>
+      </div>
+      <div class="pp" style="background:#eff6ff;border-color:#bfdbfe">
+        <div class="pp-title"><div class="pp-check" style="background:#2563eb">✓</div>Comparação pareada</div>
+        <div class="pp-body">Para cada repetição, REST e GraphQL são executados na mesma janela temporal, gerando pares que o Wilcoxon analisa como diferenças intra-par — o ruído de latência de rede afeta os dois igualmente na mesma janela.</div>
+      </div>
+      <div class="pp" style="background:#fdf4ff;border-color:#e9d5ff">
+        <div class="pp-title"><div class="pp-check" style="background:#9333ea">✓</div>Randomização da ordem</div>
+        <div class="pp-body">Em cada uma das 30 repetições, a ordem REST→GraphQL vs GraphQL→REST é sorteada com probabilidade 50/50. Isso neutraliza efeitos de aprendizagem, cache do servidor e quaisquer tendências temporais dentro de cada bloco de medição.</div>
+      </div>
+      <div class="pp" style="background:#fff7ed;border-color:#fed7aa">
+        <div class="pp-title"><div class="pp-check" style="background:#ea580c">✓</div>Dois fatores de bloco</div>
+        <div class="pp-body"><strong>Bloco 1:</strong> tipo de consulta (repo_info, issues, PRs, commits) — análise segmentada detecta se REST/GQL se comportam diferente por complexidade da query.<br><strong>Bloco 2:</strong> repositório — 20 repos com perfis distintos garantem generalização dos resultados.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 6 — MEDIÇÕES
+     ══════════════════════════════════════ -->
+<div class="page" id="p-med">
+  <div class="ph">
+    <span class="ph-badge" style="background:#ede9fe;color:#5b21b6">G</span>
+    <div>
+      <div class="ph-title">Quantidade de Medições</div>
+      <div class="ph-sub">Justificativa das 30 repetições por par e cálculo total</div>
+    </div>
+  </div>
+
+  <div class="med-calc">
+    <div class="mc-b"><div class="big">20</div><div class="lbl">repositórios</div></div>
+    <div class="mc-op">×</div>
+    <div class="mc-b"><div class="big">4</div><div class="lbl">tipos de consulta</div></div>
+    <div class="mc-op">×</div>
+    <div class="mc-b"><div class="big">30</div><div class="lbl">repetições / par</div></div>
+    <div class="mc-op">×</div>
+    <div class="mc-b"><div class="big">2</div><div class="lbl">APIs (REST + GQL)</div></div>
+    <div class="mc-op">=</div>
+    <div class="mc-res"><div class="big">4.800</div><div class="lbl">medições válidas</div></div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead><tr><th>Dimensão</th><th>Valor</th><th>Justificativa</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Pares experimentais</strong> (repo × tipo)</td><td><span class="pill p-blue">80</span></td><td>Unidade básica de análise — cada par roda independentemente</td></tr>
+        <tr><td><strong>Repetições por par</strong> por tratamento</td><td><span class="pill p-blue">30</span></td><td>n=30: poder estatístico ≥ 0,80 para efeito médio (d≈0,5) no Wilcoxon</td></tr>
+        <tr><td><strong>Medições válidas</strong> esperadas</td><td><span class="pill p-blue">4.800</span></td><td>80 × 30 × 2 — base para análise estatística</td></tr>
+        <tr><td><strong>Warm-up descartado</strong></td><td><span class="pill p-grey">320</span></td><td>80 pares × 2 warm-up × 2 APIs — não entra na análise</td></tr>
+        <tr><td><strong>Total de requisições HTTP</strong></td><td><span class="pill p-grey">5.120</span></td><td>4.800 válidas + 320 warm-up</td></tr>
+        <tr><td><strong>Pares por tipo de consulta</strong> (análise agregada)</td><td><span class="pill p-green">600</span></td><td>20 repos × 30 reps — robusto para detectar efeitos pequenos</td></tr>
+        <tr><td><strong>Duração estimada</strong></td><td><span class="pill p-orange">~45 min</span></td><td>5.120 req × 0,5s delay + tempo médio de resposta ~0,3s</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 7 — AMEAÇAS À VALIDADE
+     ══════════════════════════════════════ -->
+<div class="page" id="p-ame">
+  <div class="ph">
+    <span class="ph-badge" style="background:#ede9fe;color:#5b21b6">H</span>
+    <div>
+      <div class="ph-title">Ameaças à Validade</div>
+      <div class="ph-sub">Identificadas em quatro dimensões; controles aplicados onde possível</div>
+    </div>
+  </div>
+
+  <div class="threat-tabs">
+    <button class="threat-tab active" onclick="showThreat('int',this)">Validade Interna</button>
+    <button class="threat-tab" onclick="showThreat('ext',this)">Validade Externa</button>
+    <button class="threat-tab" onclick="showThreat('con',this)">Validade de Construto</button>
+    <button class="threat-tab" onclick="showThreat('sta',this)">Validade Estatística</button>
+  </div>
+
+  <div id="t-int" class="threat-panel active">
+    <div class="threat-grid">
+      <div class="threat-item"><div class="threat-name">Variação de latência de rede</div><div class="threat-desc">A latência entre cliente e servidor GitHub pode variar entre requisições independentes, tornando comparações não-pareadas injustas.</div><div class="threat-ctrl">Comparação pareada e interleaved: REST e GraphQL medidos na mesma janela temporal, minimizando viés de tendências temporais</div></div>
+      <div class="threat-item"><div class="threat-name">Cache do servidor</div><div class="threat-desc">GitHub pode retornar respostas cacheadas para consultas repetidas, subestimando o tempo real de processamento e favorecendo artificialmente respostas mais rápidas.</div><div class="threat-ctrl">Header <code>Cache-Control: no-cache, no-store</code> + <code>Pragma: no-cache</code> em todas as requisições</div></div>
+      <div class="threat-item"><div class="threat-name">Rate limiting da API</div><div class="threat-desc">GitHub limita a 5.000 req/h (REST) e 5.000 pontos/h (GraphQL). Atingir o limite interrompe a coleta e pode introduzir gaps temporais não controlados.</div><div class="threat-ctrl">Detector automático de status 403/429; aguarda o reset via header X-RateLimit-Reset antes de continuar</div></div>
+      <div class="threat-item"><div class="threat-name">Efeito de ordenação</div><div class="threat-desc">Executar sempre REST antes de GraphQL (ou vice-versa) introduziria viés sistemático em favor do segundo tratamento (servidor em estado "aquecido").</div><div class="threat-ctrl">Ordem (REST→GQL ou GQL→REST) sorteada aleatoriamente com p=0,5 em cada uma das 30 repetições</div></div>
+      <div class="threat-item"><div class="threat-name">Cold-start de conexão TCP</div><div class="threat-desc">As primeiras medições de cada par podem ser mais lentas por ausência de conexão TCP estabelecida e por efeitos de JIT no servidor GitHub.</div><div class="threat-ctrl">Warm-up de 2 repetições descartadas por par antes de iniciar as 30 medições válidas</div></div>
+    </div>
+  </div>
+
+  <div id="t-ext" class="threat-panel">
+    <div class="threat-grid">
+      <div class="threat-item no-ctrl"><div class="threat-name">Especificidade de plataforma</div><div class="threat-desc">Os resultados são válidos para a infraestrutura do GitHub. Implementações próprias de GraphQL/REST em servidores dedicados (ex.: BFF em Node.js) podem apresentar overhead relativo muito diferente. O GraphQL poderia ser proporcionalmente mais rápido em implementações leves ou mais lento em implementações mal otimizadas.</div></div>
+      <div class="threat-item no-ctrl"><div class="threat-name">Seleção de repositórios populares</div><div class="threat-desc">Os 20 repos são muito populares e ativos, com muitas issues e PRs abertas. Repositórios menores podem gerar respostas mais compactas em ambas as APIs, reduzindo as diferenças observadas. Os resultados podem não generalizar para o caso médio de repositórios do GitHub.</div></div>
+      <div class="threat-item no-ctrl"><div class="threat-name">Tipo e complexidade das consultas</div><div class="threat-desc">Foram selecionadas 4 consultas de leitura simples (single-request). Consultas de escrita (mutations), paginação profunda, ou queries com múltiplos níveis de relacionamento — onde o GraphQL é especialmente mais eficiente (elimina N+1 queries) — podem apresentar diferenças muito mais pronunciadas.</div></div>
+    </div>
+  </div>
+
+  <div id="t-con" class="threat-panel">
+    <div class="threat-grid">
+      <div class="threat-item no-ctrl"><div class="threat-name">Compressão HTTP (gzip)</div><div class="threat-desc">Se o servidor retornar <code>Content-Encoding: gzip</code>, o tamanho medido pelo cliente reflete o payload comprimido. Como gzip é mais eficiente em textos maiores e repetitivos, o REST (com mais campos de URL repetidos) pode ser relativamente favorecido, reduzindo a diferença de tamanho observada em relação ao dado semântico bruto.</div></div>
+      <div class="threat-item no-ctrl"><div class="threat-name">Latência vs. throughput real</div><div class="threat-desc">O tempo de resposta mede a latência de requisições <em>sequenciais</em>. Em sistemas de alta concorrência (múltiplas requisições paralelas), o impacto pode ser diferente — o GraphQL pode apresentar vantagem maior por reduzir o número total de bytes na rede, ou desvantagem por ter maior custo de parsing no servidor sob carga.</div></div>
+      <div class="threat-item no-ctrl"><div class="threat-name">Equivalência semântica das queries</div><div class="threat-desc">A seleção de quais campos solicitar no GraphQL afeta diretamente o tamanho da resposta. Escolher campos em excesso ou insuficientes distorceria a comparação. Os campos foram selecionados para representar o que um cliente típico extrairia da resposta REST correspondente — mas essa escolha é subjetiva e influencia o resultado de RQ2.</div></div>
+    </div>
+  </div>
+
+  <div id="t-sta" class="threat-panel">
+    <div class="threat-grid">
+      <div class="threat-item"><div class="threat-name">Não normalidade dos dados</div><div class="threat-desc">Tempos de resposta de API costumam ter distribuição assimétrica com cauda longa — violando o pressuposto de normalidade dos testes paramétricos (t-test).</div><div class="threat-ctrl">Uso de mediana (robusta a outliers) e teste de Wilcoxon pareado (não paramétrico, não assume normalidade)</div></div>
+      <div class="threat-item"><div class="threat-name">Múltiplos testes simultâneos</div><div class="threat-desc">São realizadas 4 tipos de consulta × 2 métricas = 8 comparações independentes, inflando a taxa de erro tipo I (falso positivo) se o nível α não for ajustado.</div><div class="threat-ctrl">Reportar p-valores individuais + aplicar correção de Bonferroni (α_ajustado = 0,05/8 = 0,00625) para controlar FWER</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 8 — CENÁRIO
+     ══════════════════════════════════════ -->
+<div class="page" id="p-cen">
+  <div class="ph">
+    <span class="ph-badge" style="background:#dcfce7;color:#166534">Preparação</span>
+    <div>
+      <div class="ph-title">Cenário Experimental</div>
+      <div class="ph-sub">Arquitetura do coletor e arquivos gerados</div>
+    </div>
+  </div>
+
+  <div class="cen-grid">
+    <div class="terminal">
+<span class="t-dim">┌──────────────────────────────────────────┐</span>
+<span class="t-dim">│</span>  <span class="t-y">GitHub API</span> <span class="t-dim">(mesma base de dados)</span>          <span class="t-dim">│</span>
+<span class="t-dim">│</span>                                          <span class="t-dim">│</span>
+<span class="t-dim">│</span>  <span class="t-m">REST v3 (GET)</span>     <span class="t-p">GraphQL v4 (POST)</span>   <span class="t-dim">│</span>
+<span class="t-dim">│</span>  <span class="t-dim">~40-60 campos</span>     <span class="t-dim">~8-13 campos</span>        <span class="t-dim">│</span>
+<span class="t-dim">└──────┬──────────────────────┬────────────┘</span>
+       <span class="t-dim">↓</span>                      <span class="t-dim">↓</span>
+<span class="t-dim">┌──────────────────────────────────────────┐</span>
+<span class="t-dim">│</span>  <span class="t-g">collector.py</span>                            <span class="t-dim">│</span>
+<span class="t-dim">│</span>                                          <span class="t-dim">│</span>
+<span class="t-dim">│</span>  <span class="t-b">for</span> query_type <span class="t-b">in</span> [repo_info, issues,   <span class="t-dim">│</span>
+<span class="t-dim">│</span>                   pull_requests, commits]:<span class="t-dim">│</span>
+<span class="t-dim">│</span>    <span class="t-b">for</span> (owner, repo) <span class="t-b">in</span> REPOS:           <span class="t-dim">│</span>
+<span class="t-dim">│</span>      <span class="t-y">warm_up</span>(2 reps, descartados)        <span class="t-dim">│</span>
+<span class="t-dim">│</span>      <span class="t-b">for</span> rep <span class="t-b">in</span> range(30):              <span class="t-dim">│</span>
+<span class="t-dim">│</span>        order = <span class="t-g">random</span>.choice([R,G])      <span class="t-dim">│</span>
+<span class="t-dim">│</span>        <span class="t-g">measure</span>(REST) → time, size        <span class="t-dim">│</span>
+<span class="t-dim">│</span>        <span class="t-g">measure</span>(GraphQL) → time, size     <span class="t-dim">│</span>
+<span class="t-dim">│</span>        <span class="t-g">append</span>(results)                  <span class="t-dim">│</span>
+<span class="t-dim">└──────────────────────┬───────────────────┘</span>
+                       <span class="t-dim">↓</span>
+<span class="t-dim">┌──────────────────────────────────────────┐</span>
+<span class="t-dim">│</span>  <span class="t-p">results.csv</span>  <span class="t-dim">(4.800 linhas × 8 colunas)</span>  <span class="t-dim">│</span>
+<span class="t-dim">└──────────────────────────────────────────┘</span>
+    </div>
+
+    <div class="files-list">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:4px">Arquivos do experimento</div>
+      <div class="file-item"><div class="file-name">scripts/config.py</div><div class="file-role">Lista dos 20 repositórios, parâmetros do experimento (N_REPETITIONS=30, WARMUP_REPS=2, DELAY=0.5s), URLs das APIs.</div></div>
+      <div class="file-item"><div class="file-name">scripts/queries.py</div><div class="file-role">4 pares de queries equivalentes REST ↔ GraphQL. Builders de URL para REST; strings de query GraphQL com variáveis <code>$owner</code> e <code>$name</code>.</div></div>
+      <div class="file-item"><div class="file-name">scripts/collector.py</div><div class="file-role">Script principal. Executa warm-up + 30 reps pareadas por par. Detecta rate limit e aguarda reset. Salva <code>results.csv</code>. Suporta <code>--dry-run</code> (2 repos, 2 reps).</div></div>
+      <div class="file-item"><div class="file-name">scripts/requirements.txt</div><div class="file-role"><code>requests</code>, <code>pandas</code>, <code>python-dotenv</code>, <code>tqdm</code> — sem dependências pesadas.</div></div>
+      <div class="file-item"><div class="file-name">.env.example</div><div class="file-role">Template para <code>GITHUB_TOKEN</code>. Token com leitura pública é suficiente (sem scopes especiais para repos públicos).</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 9 — QUERIES
+     ══════════════════════════════════════ -->
+<div class="page" id="p-qry">
+  <div class="ph">
+    <span class="ph-badge" style="background:#dcfce7;color:#166534">Preparação</span>
+    <div>
+      <div class="ph-title">Consultas Equivalentes</div>
+      <div class="ph-sub">REST retorna o objeto completo — GraphQL solicita apenas os campos necessários</div>
+    </div>
+  </div>
+
+  <div class="qry-tabs">
+    <div class="qry-tab active" onclick="showQuery('ri',this)">repo_info</div>
+    <div class="qry-tab" onclick="showQuery('is',this)">issues</div>
+    <div class="qry-tab" onclick="showQuery('pr',this)">pull_requests</div>
+    <div class="qry-tab" onclick="showQuery('cm',this)">commits</div>
+  </div>
+
+  <!-- repo_info -->
+  <div id="q-ri" class="qry-panel active">
+    <div class="code-side cs-rest">
+      <div class="cs-header"><span>REST · T₁ · GET /repos/{owner}/{repo}</span><span class="cs-fc">~60 campos retornados</span></div>
+      <div class="code-body"><span class="cc"># Retorna o objeto completo do repositório</span>
+<span class="co">GET</span> <span class="curl">https://api.github.com</span><span class="cparam">/repos/facebook/react</span>
+
+{
+  <span class="cx">"id": 10270250,</span>
+  <span class="cx">"node_id": "MDEwOlJlcG9zaXRvcnk...",</span>
+  <span class="cu">"name": "react",</span>
+  <span class="cu">"full_name": "facebook/react",</span>
+  <span class="cx">"private": false,</span>
+  <span class="cx">"owner": { ...15 campos... },</span>
+  <span class="cx">"html_url": "https://github.com/...",</span>
+  <span class="cu">"description": "The library for web...",</span>
+  <span class="cx">"fork": false,</span>
+  <span class="cx">"forks_url": "...",</span>
+  <span class="cx">"keys_url": "...",</span>
+  <span class="cx">"collaborators_url": "...",</span>
+  <span class="cx">"teams_url": "...",</span>
+  <span class="cc">  ... ~40 URLs de sub-recursos ...</span>
+  <span class="cu">"stargazers_count": 228451,</span>
+  <span class="cu">"watchers_count": 228451,</span>
+  <span class="cu">"language": "JavaScript",</span>
+  <span class="cu">"open_issues_count": 1105,</span>
+  <span class="cu">"default_branch": "main",</span>
+  <span class="cu">"license": { "name": "MIT License" },</span>
+  <span class="cu">"size": 405000,</span>
+  <span class="cx">"has_issues": true,</span>
+  <span class="cx">"has_projects": true,</span>
+  <span class="cx">"archived": false,</span>
+  <span class="cx">"disabled": false,</span>
+  <span class="cx">"network_count": 52341,</span>
+  <span class="cx">"subscribers_count": 6800</span>
+}
+<span class="cc">
+# Verde ✓ = usado | Riscado = over-fetching</span></div>
+    </div>
+    <div class="code-side cs-gql">
+      <div class="cs-header"><span>GraphQL · T₂ · POST /graphql</span><span class="cs-fc">13 campos retornados</span></div>
+      <div class="code-body"><span class="cc"># Solicita exatamente os campos necessários</span>
+<span class="ck">query</span> <span class="ct">RepoInfo</span>(<span class="cf">$owner</span>: <span class="ct">String!</span>, <span class="cf">$name</span>: <span class="ct">String!</span>) {
+  <span class="cf">repository</span>(<span class="co">owner</span>: <span class="cf">$owner</span>, <span class="co">name</span>: <span class="cf">$name</span>) {
+    <span class="cf">name</span>
+    <span class="cf">nameWithOwner</span>
+    <span class="cf">description</span>
+    <span class="cf">stargazerCount</span>
+    <span class="cf">forkCount</span>
+    <span class="cf">openIssues</span>: <span class="cf">issues</span>(<span class="co">states</span>: <span class="cs">OPEN</span>) {
+      <span class="cf">totalCount</span>
+    }
+    <span class="cf">primaryLanguage</span> { <span class="cf">name</span> }
+    <span class="cf">updatedAt</span>
+    <span class="cf">createdAt</span>
+    <span class="cf">watchers</span> { <span class="cf">totalCount</span> }
+    <span class="cf">defaultBranchRef</span> { <span class="cf">name</span> }
+    <span class="cf">licenseInfo</span> { <span class="cf">name</span> }
+    <span class="cf">diskUsage</span>
+  }
+}
+<span class="cc">
+# Todos os 13 campos retornados são usados.
+# Nenhum over-fetching.</span></div>
+    </div>
+  </div>
+
+  <!-- issues -->
+  <div id="q-is" class="qry-panel">
+    <div class="code-side cs-rest">
+      <div class="cs-header"><span>REST · T₁ · GET /issues?per_page=20</span><span class="cs-fc">~35 campos × 20 itens</span></div>
+      <div class="code-body"><span class="co">GET</span> <span class="curl">https://api.github.com</span><span class="cparam">/repos/facebook/react/issues?per_page=20&state=open</span>
+
+[{
+  <span class="cx">"id": 2185794832,</span>
+  <span class="cx">"node_id": "I_kwDOAJy2Ks...",</span>
+  <span class="cu">"number": 31982,</span>
+  <span class="cu">"title": "useSyncExternalStore...",</span>
+  <span class="cu">"state": "open",</span>
+  <span class="cu">"created_at": "2026-06-01T...",</span>
+  <span class="cu">"updated_at": "2026-06-02T...",</span>
+  <span class="cx">"user": { ...20 campos... },</span>
+  <span class="cu">"labels": [{"name":"Bug"}],</span>
+  <span class="cu">"comments": 3,</span>
+  <span class="cx">"assignees": [...],</span>
+  <span class="cx">"milestone": null,</span>
+  <span class="cx">"html_url": "...",</span>
+  <span class="cx">"url": "...",</span>
+  <span class="cx">"repository_url": "...",</span>
+  <span class="cx">"labels_url": "...",</span>
+  <span class="cx">"comments_url": "...",</span>
+  <span class="cx">"events_url": "...",</span>
+  <span class="cx">"active_lock_reason": null,</span>
+  <span class="cc">  ... ~15 campos extras ...</span>
+}, <span class="cc">... × 20]</span></div>
+    </div>
+    <div class="code-side cs-gql">
+      <div class="cs-header"><span>GraphQL · T₂ · POST /graphql</span><span class="cs-fc">8 campos × 20 itens</span></div>
+      <div class="code-body"><span class="ck">query</span> <span class="ct">RepoIssues</span>(<span class="cf">$owner</span>: <span class="ct">String!</span>, <span class="cf">$name</span>: <span class="ct">String!</span>) {
+  <span class="cf">repository</span>(<span class="co">owner</span>: <span class="cf">$owner</span>, <span class="co">name</span>: <span class="cf">$name</span>) {
+    <span class="cf">issues</span>(
+      <span class="co">first</span>: <span class="cs">20</span>,
+      <span class="co">states</span>: <span class="cs">OPEN</span>,
+      <span class="co">orderBy</span>: {
+        <span class="co">field</span>: <span class="cs">CREATED_AT</span>,
+        <span class="co">direction</span>: <span class="cs">DESC</span>
+      }
+    ) {
+      <span class="cf">nodes</span> {
+        <span class="cf">number</span>
+        <span class="cf">title</span>
+        <span class="cf">state</span>
+        <span class="cf">createdAt</span>
+        <span class="cf">updatedAt</span>
+        <span class="cf">author</span> { <span class="cf">login</span> }
+        <span class="cf">labels</span>(<span class="co">first</span>: <span class="cs">5</span>) {
+          <span class="cf">nodes</span> { <span class="cf">name</span> }
+        }
+        <span class="cf">comments</span> { <span class="cf">totalCount</span> }
+      }
+    }
+  }
+}</div>
+    </div>
+  </div>
+
+  <!-- pull_requests -->
+  <div id="q-pr" class="qry-panel">
+    <div class="code-side cs-rest">
+      <div class="cs-header"><span>REST · T₁ · GET /pulls?per_page=20</span><span class="cs-fc">~40 campos × 20 itens</span></div>
+      <div class="code-body"><span class="co">GET</span> <span class="curl">https://api.github.com</span><span class="cparam">/repos/facebook/react/pulls?per_page=20&state=open</span>
+
+[{
+  <span class="cx">"id": 1234567890,</span>
+  <span class="cx">"node_id": "PR_kwDOAJy2Ks...",</span>
+  <span class="cu">"number": 32100,</span>
+  <span class="cu">"title": "Fix concurrent mode...",</span>
+  <span class="cu">"state": "open",</span>
+  <span class="cu">"created_at": "2026-06-03T...",</span>
+  <span class="cu">"updated_at": "2026-06-04T...",</span>
+  <span class="cu">"user": { "login": "gaearon" },</span>
+  <span class="cx">"html_url": "...",</span>
+  <span class="cx">"url": "...",</span>
+  <span class="cx">"diff_url": "...",</span>
+  <span class="cx">"patch_url": "...",</span>
+  <span class="cx">"issue_url": "...",</span>
+  <span class="cx">"commits_url": "...",</span>
+  <span class="cx">"review_comments_url": "...",</span>
+  <span class="cx">"statuses_url": "...",</span>
+  <span class="cx">"head": { ...15 campos... },</span>
+  <span class="cx">"base": { ...15 campos... },</span>
+  <span class="cc">  ... ~18 campos extras ...</span>
+}, <span class="cc">... × 20]</span></div>
+    </div>
+    <div class="code-side cs-gql">
+      <div class="cs-header"><span>GraphQL · T₂ · POST /graphql</span><span class="cs-fc">8 campos × 20 itens</span></div>
+      <div class="code-body"><span class="ck">query</span> <span class="ct">RepoPRs</span>(<span class="cf">$owner</span>: <span class="ct">String!</span>, <span class="cf">$name</span>: <span class="ct">String!</span>) {
+  <span class="cf">repository</span>(<span class="co">owner</span>: <span class="cf">$owner</span>, <span class="co">name</span>: <span class="cf">$name</span>) {
+    <span class="cf">pullRequests</span>(
+      <span class="co">first</span>: <span class="cs">20</span>,
+      <span class="co">states</span>: <span class="cs">OPEN</span>,
+      <span class="co">orderBy</span>: {
+        <span class="co">field</span>: <span class="cs">CREATED_AT</span>,
+        <span class="co">direction</span>: <span class="cs">DESC</span>
+      }
+    ) {
+      <span class="cf">nodes</span> {
+        <span class="cf">number</span>
+        <span class="cf">title</span>
+        <span class="cf">state</span>
+        <span class="cf">createdAt</span>
+        <span class="cf">updatedAt</span>
+        <span class="cf">author</span> { <span class="cf">login</span> }
+        <span class="cf">reviewRequests</span>(<span class="co">first</span>: <span class="cs">5</span>) {
+          <span class="cf">totalCount</span>
+        }
+        <span class="cf">commits</span> { <span class="cf">totalCount</span> }
+      }
+    }
+  }
+}</div>
+    </div>
+  </div>
+
+  <!-- commits -->
+  <div id="q-cm" class="qry-panel">
+    <div class="code-side cs-rest">
+      <div class="cs-header"><span>REST · T₁ · GET /commits?per_page=20</span><span class="cs-fc">~20 campos × 20 itens</span></div>
+      <div class="code-body"><span class="co">GET</span> <span class="curl">https://api.github.com</span><span class="cparam">/repos/facebook/react/commits?per_page=20</span>
+
+[{
+  <span class="cu">"sha": "a1b2c3d4e5f6...",</span>
+  <span class="cx">"node_id": "C_kwDOAJy2Ks...",</span>
+  <span class="cu">"commit": {</span>
+    <span class="cu">  "message": "Fix hydration order",</span>
+    <span class="cu">  "author": {</span>
+      <span class="cu">    "name": "Dan Abramov",</span>
+      <span class="cu">    "email": "dan@...",</span>
+      <span class="cu">    "date": "2026-06-05T..."</span>
+    <span class="cu">  },</span>
+    <span class="cx">  "committer": { ...3 campos... },</span>
+    <span class="cx">  "url": "...",</span>
+    <span class="cx">  "tree": { "sha": "..." },</span>
+    <span class="cx">  "verification": { ...4 campos... }</span>
+  },
+  <span class="cx">"url": "...",</span>
+  <span class="cx">"html_url": "...",</span>
+  <span class="cx">"comments_url": "...",</span>
+  <span class="cx">"author": { ...8 campos... },</span>
+  <span class="cx">"committer": { ...8 campos... },</span>
+  <span class="cx">"parents": [{ "sha": "..." }]</span>
+}, <span class="cc">... × 20]</span></div>
+    </div>
+    <div class="code-side cs-gql">
+      <div class="cs-header"><span>GraphQL · T₂ · POST /graphql</span><span class="cs-fc">6 campos × 20 itens</span></div>
+      <div class="code-body"><span class="ck">query</span> <span class="ct">RepoCommits</span>(<span class="cf">$owner</span>: <span class="ct">String!</span>, <span class="cf">$name</span>: <span class="ct">String!</span>) {
+  <span class="cf">repository</span>(<span class="co">owner</span>: <span class="cf">$owner</span>, <span class="co">name</span>: <span class="cf">$name</span>) {
+    <span class="cf">defaultBranchRef</span> {
+      <span class="cf">target</span> {
+        <span class="ck">... on</span> <span class="ct">Commit</span> {
+          <span class="cf">history</span>(<span class="co">first</span>: <span class="cs">20</span>) {
+            <span class="cf">nodes</span> {
+              <span class="cf">oid</span>
+              <span class="cf">messageHeadline</span>
+              <span class="cf">committedDate</span>
+              <span class="cf">author</span> {
+                <span class="cf">name</span>
+                <span class="cf">email</span>
+              }
+              <span class="cf">additions</span>
+              <span class="cf">deletions</span>
+            }
+          }
+        }
+      }
+    }
+  }
+}</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════
+     PAGE 10 — EXECUÇÃO
+     ══════════════════════════════════════ -->
+<div class="page" id="p-exe">
+  <div class="ph">
+    <span class="ph-badge" style="background:#dcfce7;color:#166534">Preparação</span>
+    <div>
+      <div class="ph-title">Como Executar</div>
+      <div class="ph-sub">Pré-requisitos, configuração e coleta completa de dados</div>
+    </div>
+  </div>
+
+  <div class="exe-grid">
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-body"><h4>Instalar dependências</h4><p>Apenas bibliotecas padrão do ecossistema Python.</p><code class="cmd">cd LAB05/sprint01/scripts
+pip install -r requirements.txt</code></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-body"><h4>Configurar token GitHub</h4><p>Gere em <strong>github.com → Settings → Developer settings → Personal access tokens</strong>. Leitura pública, sem escopo especial.</p><code class="cmd">cp .env.example .env
+# GITHUB_TOKEN=ghp_xxxxxxxxxxxx</code></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-body"><h4>Testar conectividade (dry-run)</h4><p>2 repos × 2 reps — verifica token e queries antes da coleta completa.</p><code class="cmd">python collector.py --dry-run</code></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-body"><h4>Coleta completa (~45 min)</h4><p>Exibe barra de progresso. Aguarda automaticamente se atingir rate limit.</p><code class="cmd">python collector.py</code></div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-body"><h4>Verificar saúde dos dados</h4><p>Confira medianas e contagens antes de prosseguir para análise.</p><code class="cmd">python -c "
+import pandas as pd
+df = pd.read_csv('results.csv')
+print(df.groupby(['query_type','api_type'])[
+  ['response_time_s','response_size_bytes']
+].median().round(4))"</code></div></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;overflow:hidden">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;padding-bottom:6px;border-bottom:2px solid #e2e8f0">Schema do arquivo results.csv</div>
+      <div class="csv-grid">
+        <div class="csv-col"><div class="csv-n">query_type</div><div class="csv-t">string</div><div class="csv-d">repo_info · issues · pull_requests · commits</div></div>
+        <div class="csv-col"><div class="csv-n">object</div><div class="csv-t">string</div><div class="csv-d">Repositório no formato <em>owner/repo</em></div></div>
+        <div class="csv-col"><div class="csv-n">repetition</div><div class="csv-t">int  1–30</div><div class="csv-d">Número da repetição dentro do par experimental</div></div>
+        <div class="csv-col"><div class="csv-n">api_type</div><div class="csv-t">string</div><div class="csv-d"><span class="pill p-rest" style="font-size:10px">REST</span> ou <span class="pill p-gql" style="font-size:10px">GraphQL</span></div></div>
+        <div class="csv-col"><div class="csv-n">response_time_s</div><div class="csv-t">float — VD1</div><div class="csv-d">Tempo de resposta em segundos</div></div>
+        <div class="csv-col"><div class="csv-n">response_size_bytes</div><div class="csv-t">int — VD2</div><div class="csv-d">Tamanho do corpo da resposta em bytes</div></div>
+        <div class="csv-col"><div class="csv-n">status_code</div><div class="csv-t">int</div><div class="csv-d">HTTP 200 = sucesso. 403/429 são tratados automaticamente pelo coletor.</div></div>
+        <div class="csv-col"><div class="csv-n">timestamp</div><div class="csv-t">string ISO 8601</div><div class="csv-d">Momento exato do início da requisição</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /vp -->
+
+<!-- ── Indicators ── -->
+<div id="pi"><span id="pc">1</span> / <span id="pt">11</span></div>
+<div id="kh">← → teclas</div>
+
+<script>
+const PAGES = ['p-rqs','p-hip','p-var','p-trat','p-obj','p-proj','p-med','p-ame','p-cen','p-qry','p-exe'];
+const BTNS  = document.querySelectorAll('.nav-btn');
+let cur = 0;
+
+function go(idx) {
+  if (idx < 0 || idx >= PAGES.length) return;
+  document.getElementById(PAGES[cur]).classList.remove('active');
+  BTNS[cur].classList.remove('active');
+  cur = idx;
+  document.getElementById(PAGES[cur]).classList.add('active');
+  BTNS[cur].classList.add('active');
+  document.getElementById('pc').textContent = cur + 1;
+  BTNS[cur].scrollIntoView({block:'nearest',inline:'center'});
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  go(cur + 1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    go(cur - 1);
+});
+
+// Threat tabs
+function showThreat(id, btn) {
+  document.querySelectorAll('.threat-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.threat-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('t-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Query tabs
+function showQuery(id, btn) {
+  document.querySelectorAll('.qry-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.qry-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('q-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
