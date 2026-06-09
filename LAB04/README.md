@@ -3,13 +3,13 @@
 Este diretório contém os artefatos do LAB04 da disciplina de **Laboratório de Experimentação de Software**.
 Como trabalho alternativo (para alunos não matriculados em TIS 6), utilizamos os **Dados Abertos Governamentais da Câmara dos Deputados** referentes à Cota para Exercício da Atividade Parlamentar (CEAP) do ano de 2024.
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 - **Linguagem:** Python
 - **Dashboard/BI:** Streamlit
 - **Gráficos:** Plotly Express
 - **Manipulação de Dados:** Pandas
 
-## 📊 Estrutura do LAB04
+## Estrutura do LAB04
 
 ### Sprint 01
 - Script de Coleta Automatizada de Dados Abertos.
@@ -51,11 +51,3 @@ Você precisará do Python instalado e das bibliotecas listadas abaixo.
 *Uma página abrirá automaticamente no seu navegador padrão (`http://localhost:8501`) contendo o Dashboard.*
 
 ---
-
-## 📄 Entrega (Exportação para PDF)
-
-O trabalho exige a entrega em PDF. Para salvar o Dashboard do Streamlit como PDF:
-1. Abra o dashboard no navegador.
-2. Navegue até a aba que deseja exportar.
-3. Pressione `Ctrl + P` (ou `Cmd + P` no Mac) e selecione "Salvar como PDF".
-4. (Opcional) Utilize as ferramentas nativas de exportação de imagem de cada gráfico (icone de câmera no canto superior direito do gráfico plotly) para inserir no artigo.
